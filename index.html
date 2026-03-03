@@ -464,7 +464,7 @@ async function saveSale(){
   const newQty=Math.max(0,(prod?.quantity||0)-qty);
   const newStatus=newQty===0?'نفذ':newQty<5?'محدود':'متاح';
   await db.from('inventory').update({quantity:newQty,status:newStatus}).eq('id',productId);
-  toast('تم حفظ الفاتورة وخصم المخزون ✅');closeAllModals();loadSales();
+  toast('تم حفظ الفاتورة وخصم المخزون ✅');closeAllModals();loadSales();loadInventory();loadDashboard();
 }
 async function loadSales(){
   const {data}=await db.from('sales').select('*,sale_items(*)').order('date',{ascending:false});
