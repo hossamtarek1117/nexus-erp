@@ -1,0 +1,1845 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS ERP — نظام إدارة متكامل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080a0f;
+  --surface: #0f1117;
+  --surface2: #161b26;
+  --surface3: #1c2233;
+  --border: #1e2840;
+  --border2: #253050;
+  --accent: #00e5b0;
+  --accent-dim: rgba(0,229,176,0.08);
+  --accent2: #ff6b35;
+  --accent3: #7c6dfa;
+  --accent4: #f7c948;
+  --text: #e2e8f5;
+  --text-dim: #5a6580;
+  --text-mid: #8892a8;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #38bdf8;
+  --sidebar-w: 256px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);display:flex}
+
+/* ─── GRID BG ─── */
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(0,229,176,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,229,176,.025) 1px,transparent 1px);
+  background-size:50px 50px;pointer-events:none;z-index:0}
+
+/* ─── SIDEBAR ─── */
+.sidebar{width:var(--sidebar-w);height:100vh;background:var(--surface);
+  border-left:1px solid var(--border);display:flex;flex-direction:column;
+  position:relative;z-index:200;flex-shrink:0;overflow-y:auto}
+
+.logo-area{padding:20px 18px 16px;border-bottom:1px solid var(--border)}
+.logo-mark{font-size:19px;font-weight:900;color:var(--accent);letter-spacing:-0.5px;display:flex;align-items:center;gap:8px}
+.logo-hex{width:28px;height:28px;background:var(--accent);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;color:#000;font-size:14px;font-weight:900}
+.logo-sub{font-size:10px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;margin-top:3px;padding-right:36px}
+
+.nav-scroll{flex:1;padding:10px 0;overflow-y:auto}
+.nav-sec-label{font-size:9px;color:var(--text-dim);letter-spacing:2.5px;
+  padding:12px 18px 4px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase}
+
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px;
+  cursor:pointer;transition:all .18s;font-size:13.5px;color:var(--text-mid);
+  border-right:3px solid transparent;position:relative;user-select:none}
+.nav-item:hover{color:var(--text);background:var(--surface2)}
+.nav-item.active{color:var(--accent);background:rgba(0,229,176,.07);border-right-color:var(--accent)}
+.nav-item .ni{width:20px;text-align:center;font-size:15px;flex-shrink:0}
+.nav-item .nb{margin-right:auto;background:var(--danger);color:#fff;
+  font-size:10px;padding:1px 6px;border-radius:10px;font-family:'IBM Plex Mono',monospace}
+.nav-item .nb.warn{background:var(--warning)}
+
+.user-card{padding:14px 18px;border-top:1px solid var(--border);flex-shrink:0}
+.user-row{display:flex;align-items:center;gap:10px}
+.avatar{width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#000;flex-shrink:0}
+.user-name{font-size:13px;font-weight:700}
+.user-role{font-size:10px;color:var(--text-dim);margin-top:1px}
+
+/* ─── MAIN ─── */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;position:relative;z-index:1}
+
+.topbar{padding:12px 28px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(8,10,15,.85);backdrop-filter:blur(12px);flex-shrink:0;
+  position:relative;z-index:100}
+.page-title{font-size:18px;font-weight:800;display:flex;align-items:center;gap:10px}
+.page-icon{font-size:20px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:8px;border:1px solid var(--border2);background:var(--surface2);
+  cursor:pointer;font-size:13px;color:var(--text-mid);transition:all .2s;font-family:'Cairo',sans-serif}
+.topbar-btn:hover{color:var(--text);border-color:var(--accent);color:var(--accent)}
+.topbar-btn.primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+.topbar-btn.primary:hover{background:#00c99a}
+.live-badge{display:flex;align-items:center;gap:5px;font-size:11px;
+  color:var(--success);font-family:'IBM Plex Mono',monospace}
+.dot-live{width:7px;height:7px;border-radius:50%;background:var(--success);
+  animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.5)}
+  50%{opacity:.7;box-shadow:0 0 0 5px rgba(34,197,94,0)}}
+.date-chip{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);
+  background:var(--surface2);padding:5px 10px;border-radius:6px;border:1px solid var(--border)}
+
+/* ─── CONTENT ─── */
+.content{flex:1;overflow-y:auto;padding:24px 28px}
+
+/* ─── PAGE (shown/hidden) ─── */
+.page{display:none;animation:fadeIn .25s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── GRID LAYOUTS ─── */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.g2{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:20px}
+.g2e{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.mb{margin-bottom:20px}
+
+/* ─── KPI CARD ─── */
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:18px 20px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s;cursor:default}
+.kpi:hover{transform:translateY(-2px)}
+.kpi.c1:hover{border-color:rgba(0,229,176,.4)}
+.kpi.c2:hover{border-color:rgba(255,107,53,.4)}
+.kpi.c3:hover{border-color:rgba(124,109,250,.4)}
+.kpi.c4:hover{border-color:rgba(247,201,72,.4)}
+.kpi::after{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:0 0 0 12px}
+.kpi.c1::after{background:var(--accent)}
+.kpi.c2::after{background:var(--accent2)}
+.kpi.c3::after{background:var(--accent3)}
+.kpi.c4::after{background:var(--accent4)}
+.kpi-icon{font-size:22px;margin-bottom:8px}
+.kpi-label{font-size:11px;color:var(--text-dim);margin-bottom:6px;font-family:'IBM Plex Mono',monospace;letter-spacing:.5px}
+.kpi-val{font-size:26px;font-weight:900;font-family:'IBM Plex Mono',monospace;line-height:1;margin-bottom:8px}
+.kpi.c1 .kpi-val{color:var(--accent)}
+.kpi.c2 .kpi-val{color:var(--accent2)}
+.kpi.c3 .kpi-val{color:var(--accent3)}
+.kpi.c4 .kpi-val{color:var(--accent4)}
+.kpi-ch{font-size:11px;font-family:'IBM Plex Mono',monospace}
+.kpi-ch.up{color:var(--success)}.kpi-ch.dn{color:var(--danger)}.kpi-ch.neu{color:var(--text-dim)}
+.kpi-spark{position:absolute;bottom:0;left:0;right:0;height:36px;opacity:.5}
+
+/* ─── CARD ─── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.card-bd{padding:18px}
+.card-act{font-size:12px;color:var(--accent);cursor:pointer;font-family:'IBM Plex Mono',monospace;
+  transition:opacity .2s}
+.card-act:hover{opacity:.7}
+
+/* ─── BADGE ─── */
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-family:'IBM Plex Mono',monospace;font-weight:600}
+.bg{background:rgba(0,229,176,.15);color:var(--accent)}
+.bo{background:rgba(255,107,53,.15);color:var(--accent2)}
+.bp{background:rgba(124,109,250,.15);color:var(--accent3)}
+.by{background:rgba(247,201,72,.15);color:var(--accent4)}
+.bs{background:rgba(34,197,94,.15);color:var(--success)}
+.bd{background:rgba(239,68,68,.15);color:var(--danger)}
+.bw{background:rgba(245,158,11,.15);color:var(--warning)}
+.bi{background:rgba(56,189,248,.15);color:var(--info)}
+
+/* ─── TABLE ─── */
+.tbl-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:right;padding:9px 14px;font-size:11px;color:var(--text-dim);
+  font-weight:600;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;
+  letter-spacing:.5px;white-space:nowrap;background:var(--surface2)}
+.tbl td{padding:10px 14px;font-size:13px;border-bottom:1px solid rgba(30,40,64,.5);
+  white-space:nowrap;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(22,27,38,.8)}
+.tbl td.mono{font-family:'IBM Plex Mono',monospace;font-size:12px}
+.tbl td.accent{color:var(--accent)}
+.tbl td.pos{color:var(--accent);font-family:'IBM Plex Mono',monospace;font-weight:700}
+.tbl td.neg{color:var(--danger);font-family:'IBM Plex Mono',monospace;font-weight:700}
+
+/* ─── STATUS PILLS ─── */
+.pill{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace}
+.pill-paid{background:rgba(34,197,94,.15);color:var(--success)}
+.pill-pend{background:rgba(245,158,11,.15);color:var(--warning)}
+.pill-canc{background:rgba(239,68,68,.15);color:var(--danger)}
+.pill-proc{background:rgba(56,189,248,.15);color:var(--info)}
+.pill-act{background:rgba(0,229,176,.15);color:var(--accent)}
+.pill-inact{background:rgba(90,101,128,.15);color:var(--text-dim)}
+.pill-low{background:rgba(239,68,68,.15);color:var(--danger)}
+.pill-safe{background:rgba(34,197,94,.15);color:var(--success)}
+.pill-warn{background:rgba(245,158,11,.15);color:var(--warning)}
+
+/* ─── PROGRESS ─── */
+.prog-item{margin-bottom:13px}
+.prog-item:last-child{margin-bottom:0}
+.prog-hd{display:flex;justify-content:space-between;margin-bottom:5px;font-size:13px}
+.prog-label{color:var(--text-mid)}
+.prog-val{font-family:'IBM Plex Mono',monospace;font-size:12px}
+.prog-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width 1s ease}
+
+/* ─── ALERT ITEM ─── */
+.alert-item{display:flex;align-items:center;gap:12px;padding:12px 14px;
+  border-radius:10px;margin-bottom:8px;border:1px solid;cursor:pointer;transition:transform .2s}
+.alert-item:hover{transform:translateX(-3px)}
+.alert-item:last-child{margin-bottom:0}
+.ai-d{background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.2)}
+.ai-w{background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.2)}
+.ai-i{background:rgba(124,109,250,.07);border-color:rgba(124,109,250,.2)}
+.ai-s{background:rgba(34,197,94,.07);border-color:rgba(34,197,94,.2)}
+.ai-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.ai-icon.d{background:rgba(239,68,68,.15)}.ai-icon.w{background:rgba(245,158,11,.15)}
+.ai-icon.i{background:rgba(124,109,250,.15)}.ai-icon.s{background:rgba(34,197,94,.15)}
+.ai-body{flex:1}
+.ai-title{font-size:13px;font-weight:700}
+.ai-sub{font-size:11px;color:var(--text-dim);margin-top:2px}
+.ai-count{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700}
+.ai-count.d{color:var(--danger)}.ai-count.w{color:var(--warning)}
+.ai-count.i{color:var(--accent3)}.ai-count.s{color:var(--success)}
+
+/* ─── MINI STAT ─── */
+.ms{display:flex;align-items:center;justify-content:space-between;
+  padding:11px 0;border-bottom:1px solid var(--border);font-size:13px}
+.ms:last-child{border-bottom:none;padding-bottom:0}
+.ms-label{color:var(--text-mid);display:flex;align-items:center;gap:7px}
+.ms-val{font-family:'IBM Plex Mono',monospace;font-weight:700}
+
+/* ─── DONUT ─── */
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+.donut{width:130px;height:130px;position:relative;flex-shrink:0}
+.donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center}
+.donut-val{font-size:20px;font-weight:900;font-family:'IBM Plex Mono',monospace;color:var(--accent)}
+.donut-sub{font-size:10px;color:var(--text-dim)}
+.legend{width:100%}
+.leg-item{display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;padding:5px 0;border-bottom:1px solid var(--border)}
+.leg-item:last-child{border-bottom:none}
+.leg-l{display:flex;align-items:center;gap:8px;color:var(--text-mid)}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.leg-v{font-family:'IBM Plex Mono',monospace;font-size:12px}
+
+/* ─── FORM ─── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.form-full{grid-column:1/-1}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:12px;color:var(--text-mid);font-weight:600}
+.fg input,.fg select,.fg textarea{
+  background:var(--surface2);border:1px solid var(--border2);border-radius:8px;
+  padding:9px 12px;color:var(--text);font-size:13px;font-family:'Cairo',sans-serif;
+  transition:border-color .2s;outline:none}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,229,176,.1)}
+.fg select option{background:var(--surface2)}
+.fg textarea{resize:vertical;min-height:80px}
+.fg input::placeholder{color:var(--text-dim)}
+
+/* ─── BTN ─── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;
+  border-radius:8px;border:none;cursor:pointer;font-size:13px;font-family:'Cairo',sans-serif;
+  font-weight:700;transition:all .2s}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:hover{background:#00c99a;transform:translateY(-1px)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border2)}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.btn-danger{background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3)}
+.btn-danger:hover{background:rgba(239,68,68,.25)}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-icon{padding:7px;aspect-ratio:1}
+
+/* ─── MODAL ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);
+  z-index:1000;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px;
+  width:620px;max-width:95vw;max-height:90vh;overflow-y:auto;
+  animation:modalIn .25s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-hd{padding:20px 24px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:16px;font-weight:800}
+.modal-close{background:var(--surface2);border:1px solid var(--border2);
+  border-radius:8px;width:32px;height:32px;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;color:var(--text-dim);font-size:16px;
+  transition:all .2s}
+.modal-close:hover{color:var(--danger);border-color:var(--danger)}
+.modal-bd{padding:20px 24px}
+.modal-ft{padding:16px 24px;border-top:1px solid var(--border);
+  display:flex;gap:10px;justify-content:flex-end}
+
+/* ─── SEARCH + FILTER BAR ─── */
+.filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--surface2);
+  border:1px solid var(--border2);border-radius:8px;padding:8px 14px;flex:1;min-width:200px}
+.search-box input{background:none;border:none;outline:none;color:var(--text);
+  font-size:13px;font-family:'Cairo',sans-serif;width:100%}
+.search-box input::placeholder{color:var(--text-dim)}
+.search-icon{color:var(--text-dim);font-size:14px}
+.filter-select{background:var(--surface2);border:1px solid var(--border2);
+  border-radius:8px;padding:8px 12px;color:var(--text-mid);font-size:13px;
+  font-family:'Cairo',sans-serif;outline:none;cursor:pointer}
+.filter-select:focus{border-color:var(--accent)}
+
+/* ─── TABS ─── */
+.tabs{display:flex;gap:4px;margin-bottom:18px;background:var(--surface);
+  padding:4px;border-radius:10px;border:1px solid var(--border);width:fit-content}
+.tab{padding:7px 16px;border-radius:7px;font-size:13px;cursor:pointer;
+  transition:all .2s;color:var(--text-dim);user-select:none}
+.tab.active{background:var(--accent);color:#000;font-weight:700}
+.tab:hover:not(.active){color:var(--text);background:var(--surface2)}
+
+/* ─── SVG CHART ─── */
+.chart-svg{width:100%;overflow:visible}
+
+/* ─── SECTION HEADING ─── */
+.sec-hd{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--text-dim);
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;
+  display:flex;align-items:center;gap:10px}
+.sec-hd::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ─── EMPTY STATE ─── */
+.empty{text-align:center;padding:48px 20px;color:var(--text-dim)}
+.empty-icon{font-size:40px;margin-bottom:12px;opacity:.5}
+.empty-text{font-size:14px}
+
+/* ─── TOAST ─── */
+.toast-container{position:fixed;bottom:24px;left:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{display:flex;align-items:center;gap:10px;padding:12px 16px;
+  border-radius:10px;border:1px solid;font-size:13px;font-weight:600;
+  animation:toastIn .3s ease;min-width:250px;backdrop-filter:blur(8px)}
+.toast.s{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.3);color:var(--success)}
+.toast.d{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.3);color:var(--danger)}
+.toast.w{background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.3);color:var(--warning)}
+@keyframes toastIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-20px)}}
+
+/* ─── DETAIL ROW ─── */
+.det-row{display:flex;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.det-row:last-child{border-bottom:none}
+.det-label{width:160px;color:var(--text-dim);flex-shrink:0}
+.det-val{color:var(--text);font-weight:600}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ─── ACTION CELL ─── */
+.acts{display:flex;gap:5px;align-items:center}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<aside class="sidebar">
+  <div class="logo-area">
+    <div class="logo-mark">
+      <div class="logo-hex">N</div>
+      NEXUS ERP
+    </div>
+    <div class="logo-sub">v2.1 · نظام إدارة متكامل</div>
+  </div>
+
+  <nav class="nav-scroll">
+    <div class="nav-sec-label">MAIN</div>
+    <div class="nav-item active" data-page="dashboard">
+      <span class="ni">◉</span> الداشبورد الرئيسي
+    </div>
+
+    <div class="nav-sec-label">المبيعات</div>
+    <div class="nav-item" data-page="sales">
+      <span class="ni">🧾</span> المبيعات والفواتير
+      <span class="nb" id="nb-sales">5</span>
+    </div>
+    <div class="nav-item" data-page="customers">
+      <span class="ni">👥</span> العملاء والحسابات
+    </div>
+    <div class="nav-item" data-page="returns">
+      <span class="ni">↩️</span> المرتجعات
+    </div>
+
+    <div class="nav-sec-label">المخزون</div>
+    <div class="nav-item" data-page="products">
+      <span class="ni">🏷️</span> المنتجات
+    </div>
+    <div class="nav-item" data-page="inventory">
+      <span class="ni">🗄️</span> حالة المخزون
+      <span class="nb warn" id="nb-inv">3</span>
+    </div>
+    <div class="nav-item" data-page="expiry">
+      <span class="ni">⏰</span> تنبيهات الصلاحية
+      <span class="nb" id="nb-exp">3</span>
+    </div>
+
+    <div class="nav-sec-label">الإنتاج</div>
+    <div class="nav-item" data-page="production">
+      <span class="ni">🏭</span> دفعات الإنتاج
+    </div>
+    <div class="nav-item" data-page="quality">
+      <span class="ni">✅</span> ضبط الجودة
+    </div>
+    <div class="nav-item" data-page="waste">
+      <span class="ni">♻️</span> الهدر والمخلفات
+    </div>
+
+    <div class="nav-sec-label">الموردين</div>
+    <div class="nav-item" data-page="suppliers">
+      <span class="ni">🚚</span> الموردين
+    </div>
+    <div class="nav-item" data-page="purchases">
+      <span class="ni">🛒</span> المشتريات
+    </div>
+
+    <div class="nav-sec-label">الموارد البشرية</div>
+    <div class="nav-item" data-page="employees">
+      <span class="ni">👔</span> الموظفين
+    </div>
+    <div class="nav-item" data-page="payroll">
+      <span class="ni">💵</span> الرواتب والأوفرتايم
+    </div>
+    <div class="nav-item" data-page="attendance">
+      <span class="ni">📋</span> الحضور والغياب
+    </div>
+
+    <div class="nav-sec-label">المالية</div>
+    <div class="nav-item" data-page="expenses">
+      <span class="ni">💰</span> المصروفات
+    </div>
+    <div class="nav-item" data-page="receivables">
+      <span class="ni">📥</span> الذمم المدينة
+    </div>
+    <div class="nav-item" data-page="profit">
+      <span class="ni">📊</span> تقرير الأرباح
+    </div>
+
+    <div class="nav-sec-label">SYSTEM</div>
+    <div class="nav-item" data-page="settings">
+      <span class="ni">⚙️</span> الإعدادات والقوائم
+    </div>
+    <div class="nav-item" data-page="actlog">
+      <span class="ni">📋</span> سجل الأنشطة
+    </div>
+  </nav>
+
+  <div class="user-card">
+    <div class="user-row">
+      <div class="avatar">م</div>
+      <div>
+        <div class="user-name">المدير العام</div>
+        <div class="user-role">Admin · Full Access</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-title">
+      <span class="page-icon" id="topbar-icon">◉</span>
+      <span id="topbar-title">الداشبورد الرئيسي</span>
+    </div>
+    <div class="topbar-right">
+      <div class="live-badge"><div class="dot-live"></div>LIVE</div>
+      <div class="date-chip" id="date-chip"></div>
+      <div class="topbar-btn primary" id="topbar-add-btn" onclick="openAddModal()" style="display:none">
+        + إضافة جديد
+      </div>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+
+    <!-- ══════ DASHBOARD ══════ -->
+    <div class="page active" id="page-dashboard">
+      <div class="tabs">
+        <div class="tab active">نظرة عامة</div>
+        <div class="tab">هذا الشهر</div>
+        <div class="tab">اليوم</div>
+      </div>
+
+      <div class="g4">
+        <div class="kpi c1">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-label">TOTAL SALES</div>
+          <div class="kpi-val">١.٢٤M</div>
+          <div class="kpi-ch up">↑ +18.4% من الشهر الماضي</div>
+          <svg class="kpi-spark" viewBox="0 0 100 36" preserveAspectRatio="none">
+            <defs><linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00e5b0" stop-opacity=".4"/><stop offset="100%" stop-color="#00e5b0" stop-opacity="0"/></linearGradient></defs>
+            <polygon points="0,30 14,22 28,26 42,14 56,18 70,6 84,10 100,2 100,36 0,36" fill="url(#sg1)"/>
+            <polyline points="0,30 14,22 28,26 42,14 56,18 70,6 84,10 100,2" fill="none" stroke="#00e5b0" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="kpi c2">
+          <div class="kpi-icon">🏭</div>
+          <div class="kpi-label">PRODUCTION UNITS</div>
+          <div class="kpi-val">٨٤,٢٣٠</div>
+          <div class="kpi-ch up">↑ +6.2% كفاءة</div>
+          <svg class="kpi-spark" viewBox="0 0 100 36" preserveAspectRatio="none">
+            <defs><linearGradient id="sg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff6b35" stop-opacity=".4"/><stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/></linearGradient></defs>
+            <polygon points="0,28 16,22 32,25 48,14 64,18 80,10 100,8 100,36 0,36" fill="url(#sg2)"/>
+            <polyline points="0,28 16,22 32,25 48,14 64,18 80,10 100,8" fill="none" stroke="#ff6b35" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="kpi c3">
+          <div class="kpi-icon">👥</div>
+          <div class="kpi-label">EMPLOYEES</div>
+          <div class="kpi-val">٤٧</div>
+          <div class="kpi-ch up">↑ ٣ موظفين جدد</div>
+          <svg class="kpi-spark" viewBox="0 0 100 36" preserveAspectRatio="none">
+            <defs><linearGradient id="sg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7c6dfa" stop-opacity=".4"/><stop offset="100%" stop-color="#7c6dfa" stop-opacity="0"/></linearGradient></defs>
+            <polygon points="0,30 20,26 40,24 60,22 80,20 100,16 100,36 0,36" fill="url(#sg3)"/>
+            <polyline points="0,30 20,26 40,24 60,22 80,20 100,16" fill="none" stroke="#7c6dfa" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="kpi c4">
+          <div class="kpi-icon">⚠️</div>
+          <div class="kpi-label">ACTIVE ALERTS</div>
+          <div class="kpi-val">١٥</div>
+          <div class="kpi-ch dn">↓ ٣ صلاحية · ٧ مخزون · ٥ مالي</div>
+          <svg class="kpi-spark" viewBox="0 0 100 36" preserveAspectRatio="none">
+            <defs><linearGradient id="sg4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f7c948" stop-opacity=".4"/><stop offset="100%" stop-color="#f7c948" stop-opacity="0"/></linearGradient></defs>
+            <polygon points="0,8 16,18 32,10 48,24 64,14 80,28 100,20 100,36 0,36" fill="url(#sg4)"/>
+            <polyline points="0,8 16,18 32,10 48,24 64,14 80,28 100,20" fill="none" stroke="#f7c948" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="g2">
+        <!-- Sales Chart -->
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-title">📈 المبيعات مقابل الهدف <span class="badge bg">شهري</span></div>
+            <div class="card-act" onclick="nav('sales')">تقرير كامل ←</div>
+          </div>
+          <div class="card-bd">
+            <svg class="chart-svg" viewBox="0 0 460 160">
+              <line x1="0" y1="140" x2="460" y2="140" stroke="#1e2840" stroke-width="1"/>
+              <line x1="0" y1="100" x2="460" y2="100" stroke="#1e2840" stroke-width="1"/>
+              <line x1="0" y1="60" x2="460" y2="60" stroke="#1e2840" stroke-width="1"/>
+              <line x1="0" y1="20" x2="460" y2="20" stroke="#1e2840" stroke-width="1"/>
+              <!-- Target -->
+              <line x1="0" y1="90" x2="460" y2="90" stroke="#253050" stroke-width="2" stroke-dasharray="6,4"/>
+              <defs>
+                <linearGradient id="salg" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#00e5b0" stop-opacity=".2"/>
+                  <stop offset="100%" stop-color="#00e5b0" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <polygon points="20,120 90,100 160,80 230,60 300,75 370,40 440,25 440,140 20,140" fill="url(#salg)"/>
+              <polyline points="20,120 90,100 160,80 230,60 300,75 370,40 440,25" fill="none" stroke="#00e5b0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="20" cy="120" r="4" fill="#00e5b0"/>
+              <circle cx="90" cy="100" r="4" fill="#00e5b0"/>
+              <circle cx="160" cy="80" r="4" fill="#00e5b0"/>
+              <circle cx="230" cy="60" r="4" fill="#00e5b0"/>
+              <circle cx="300" cy="75" r="4" fill="#00e5b0"/>
+              <circle cx="370" cy="40" r="4" fill="#00e5b0"/>
+              <circle cx="440" cy="25" r="4" fill="#00e5b0"/>
+              <text x="20" y="157" text-anchor="middle" fill="#5a6580" font-size="11" font-family="Cairo">يوليو</text>
+              <text x="90" y="157" text-anchor="middle" fill="#5a6580" font-size="11" font-family="Cairo">أغسطس</text>
+              <text x="160" y="157" text-anchor="middle" fill="#5a6580" font-size="11" font-family="Cairo">سبتمبر</text>
+              <text x="230" y="157" text-anchor="middle" fill="#5a6580" font-size="11" font-family="Cairo">أكتوبر</text>
+              <text x="300" y="157" text-anchor="middle" fill="#5a6580" font-size="11" font-family="Cairo">نوفمبر</text>
+              <text x="370" y="157" text-anchor="middle" fill="#5a6580" font-size="11" font-family="Cairo">ديسمبر</text>
+              <text x="440" y="157" text-anchor="middle" fill="#00e5b0" font-size="11" font-family="Cairo">يناير</text>
+            </svg>
+          </div>
+        </div>
+        <!-- Channel Donut -->
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-title">🎯 قنوات البيع <span class="badge bp">توزيع</span></div>
+          </div>
+          <div class="card-bd">
+            <div class="donut-wrap">
+              <div class="donut">
+                <svg viewBox="0 0 130 130">
+                  <circle cx="65" cy="65" r="50" fill="none" stroke="#1e2840" stroke-width="18"/>
+                  <circle cx="65" cy="65" r="50" fill="none" stroke="#00e5b0" stroke-width="18" stroke-dasharray="119 195" stroke-dashoffset="0"/>
+                  <circle cx="65" cy="65" r="50" fill="none" stroke="#7c6dfa" stroke-width="18" stroke-dasharray="87 227" stroke-dashoffset="-119"/>
+                  <circle cx="65" cy="65" r="50" fill="none" stroke="#ff6b35" stroke-width="18" stroke-dasharray="63 251" stroke-dashoffset="-206"/>
+                  <circle cx="65" cy="65" r="50" fill="none" stroke="#f7c948" stroke-width="18" stroke-dasharray="44 270" stroke-dashoffset="-269"/>
+                </svg>
+                <div class="donut-center"><div class="donut-val">38%</div><div class="donut-sub">أونلاين</div></div>
+              </div>
+              <div class="legend">
+                <div class="leg-item"><div class="leg-l"><div class="leg-dot" style="background:var(--accent)"></div>أونلاين</div><span class="leg-v">38%</span></div>
+                <div class="leg-item"><div class="leg-l"><div class="leg-dot" style="background:var(--accent3)"></div>فروع</div><span class="leg-v">28%</span></div>
+                <div class="leg-item"><div class="leg-l"><div class="leg-dot" style="background:var(--accent2)"></div>موزعين</div><span class="leg-v">20%</span></div>
+                <div class="leg-item"><div class="leg-l"><div class="leg-dot" style="background:var(--accent4)"></div>مباشر</div><span class="leg-v">14%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="g3">
+        <!-- Alerts -->
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-title">🚨 تنبيهات هامة</div>
+            <span class="badge bd">15 نشط</span>
+          </div>
+          <div class="card-bd">
+            <div class="alert-item ai-d"><div class="ai-icon d">⏰</div><div class="ai-body"><div class="ai-title">منتهية الصلاحية</div><div class="ai-sub">تحتاج إجراء فوري</div></div><div class="ai-count d">٣</div></div>
+            <div class="alert-item ai-w"><div class="ai-icon w">📦</div><div class="ai-body"><div class="ai-title">مخزون منخفض</div><div class="ai-sub">Reorder Point</div></div><div class="ai-count w">٧</div></div>
+            <div class="alert-item ai-w"><div class="ai-icon w">💵</div><div class="ai-body"><div class="ai-title">فواتير متأخرة</div><div class="ai-sub">+30 يوم تأخير</div></div><div class="ai-count w">٤</div></div>
+            <div class="alert-item ai-i"><div class="ai-icon i">🏭</div><div class="ai-body"><div class="ai-title">QC مطلوب</div><div class="ai-sub">دفعات للمراجعة</div></div><div class="ai-count i">١</div></div>
+          </div>
+        </div>
+        <!-- Inventory -->
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-title">🗄️ حالة المخزون</div>
+            <div class="card-act" onclick="nav('inventory')">تفاصيل ←</div>
+          </div>
+          <div class="card-bd">
+            <div class="prog-item"><div class="prog-hd"><span class="prog-label">Laundry Care</span><span class="prog-val">72%</span></div><div class="prog-bar"><div class="prog-fill" style="width:72%;background:var(--accent)"></div></div></div>
+            <div class="prog-item"><div class="prog-hd"><span class="prog-label">Dishwashing</span><span class="prog-val">48%</span></div><div class="prog-bar"><div class="prog-fill" style="width:48%;background:var(--accent3)"></div></div></div>
+            <div class="prog-item"><div class="prog-hd"><span class="prog-label">Surface Cleaners</span><span class="prog-val">89%</span></div><div class="prog-bar"><div class="prog-fill" style="width:89%;background:var(--success)"></div></div></div>
+            <div class="prog-item"><div class="prog-hd"><span class="prog-label">Disinfectants</span><span class="prog-val" style="color:var(--danger)">23%</span></div><div class="prog-bar"><div class="prog-fill" style="width:23%;background:var(--danger)"></div></div></div>
+            <div class="prog-item"><div class="prog-hd"><span class="prog-label">Personal Care</span><span class="prog-val">61%</span></div><div class="prog-bar"><div class="prog-fill" style="width:61%;background:var(--accent2)"></div></div></div>
+            <div class="prog-item"><div class="prog-hd"><span class="prog-label">Air Fresheners</span><span class="prog-val" style="color:var(--warning)">35%</span></div><div class="prog-bar"><div class="prog-fill" style="width:35%;background:var(--warning)"></div></div></div>
+          </div>
+        </div>
+        <!-- HR Snapshot -->
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-title">👔 لقطة HR</div>
+            <div class="card-act" onclick="nav('attendance')">حضور اليوم ←</div>
+          </div>
+          <div class="card-bd">
+            <div class="ms"><span class="ms-label">✅ حاضرون</span><span class="ms-val" style="color:var(--success)">٤٢</span></div>
+            <div class="ms"><span class="ms-label">❌ غائبون</span><span class="ms-val" style="color:var(--danger)">٥</span></div>
+            <div class="ms"><span class="ms-label">🏖️ إجازة</span><span class="ms-val" style="color:var(--warning)">٣</span></div>
+            <div class="ms"><span class="ms-label">⏰ أوفرتايم</span><span class="ms-val" style="color:var(--accent3)">124 hr</span></div>
+            <div class="ms"><span class="ms-label">💵 رواتب الشهر</span><span class="ms-val" style="color:var(--accent)">285,000</span></div>
+            <div class="ms"><span class="ms-label">📋 طلبات معلقة</span><span class="ms-val" style="color:var(--warning)">٢</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Transactions -->
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-title">🧾 آخر المعاملات <span class="badge bg">مباشر</span></div>
+          <div class="card-act" onclick="nav('sales')">عرض الكل ←</div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>رقم الفاتورة</th><th>العميل</th><th>نوع البيع</th><th>طريقة الدفع</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+            <tbody>
+              <tr><td class="mono accent">#INV-2401</td><td>شركة النور للتجارة</td><td><span class="badge bg">Wholesale</span></td><td>Visa</td><td class="pos">+84,500</td><td><span class="pill pill-paid">Paid</span></td><td class="mono">2026-01-03</td></tr>
+              <tr><td class="mono accent">#INV-2400</td><td>مؤسسة الأمل</td><td><span class="badge bi">Online</span></td><td>Instapay</td><td class="pos">+23,200</td><td><span class="pill pill-pend">Pending</span></td><td class="mono">2026-01-03</td></tr>
+              <tr><td class="mono accent">#INV-2399</td><td>Ahmed Retail</td><td><span class="badge bs">Direct</span></td><td>Cash</td><td class="pos">+9,750</td><td><span class="pill pill-paid">Paid</span></td><td class="mono">2026-01-02</td></tr>
+              <tr><td class="mono accent">#RTN-0089</td><td>توزيع الخليج</td><td><span class="badge bd">Return</span></td><td>Wallet</td><td class="neg">-5,300</td><td><span class="pill pill-proc">Processing</span></td><td class="mono">2026-01-02</td></tr>
+              <tr><td class="mono accent">#INV-2398</td><td>الشركة المتحدة</td><td><span class="badge bp">Corporate</span></td><td>Bank Transfer</td><td class="pos">+156,000</td><td><span class="pill pill-paid">Paid</span></td><td class="mono">2026-01-01</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /dashboard -->
+
+    <!-- ══════ SALES ══════ -->
+    <div class="page" id="page-sales">
+      <div class="filter-bar">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="بحث بالفاتورة أو العميل..." oninput="filterTable('sales-tbl',this.value)"></div>
+        <select class="filter-select"><option>كل الحالات</option><option>Paid</option><option>Pending</option><option>Cancelled</option></select>
+        <select class="filter-select"><option>كل القنوات</option><option>Online</option><option>Branch</option><option>Direct</option><option>Distributor</option></select>
+        <button class="btn btn-primary" onclick="openModal('modal-sale')">+ فاتورة جديدة</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="tbl" id="sales-tbl">
+            <thead><tr><th>رقم الفاتورة</th><th>العميل</th><th>نوع البيع</th><th>القناة</th><th>طريقة الدفع</th><th>المبلغ</th><th>الضريبة</th><th>الصافي</th><th>الحالة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+            <tbody id="sales-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ CUSTOMERS ══════ -->
+    <div class="page" id="page-customers">
+      <div class="filter-bar">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="بحث بالاسم أو الكود..." oninput="filterTable('cust-tbl',this.value)"></div>
+        <select class="filter-select"><option>كل الأنواع</option><option>Individual</option><option>Wholesale</option><option>Corporate</option><option>VIP</option></select>
+        <button class="btn btn-primary" onclick="openModal('modal-customer')">+ عميل جديد</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="tbl" id="cust-tbl">
+            <thead><tr><th>كود العميل</th><th>الاسم</th><th>النوع</th><th>الهاتف</th><th>إجمالي مشتريات</th><th>رصيد مستحق</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+            <tbody id="customers-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ RETURNS ══════ -->
+    <div class="page" id="page-returns">
+      <div class="filter-bar">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="بحث..."></div>
+        <select class="filter-select"><option>كل أنواع المرتجعات</option><option>Customer Return</option><option>Production Return</option><option>Phone Return</option></select>
+        <button class="btn btn-primary" onclick="openModal('modal-return')">+ مرتجع جديد</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>رقم المرتجع</th><th>المرجع</th><th>العميل/المصدر</th><th>نوع المرتجع</th><th>السبب</th><th>الكمية</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+            <tbody id="returns-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ PRODUCTS ══════ -->
+    <div class="page" id="page-products">
+      <div class="filter-bar">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="بحث بالمنتج أو الكود..." oninput="filterTable('prod-tbl',this.value)"></div>
+        <select class="filter-select"><option>كل الفئات</option><option>Laundry Care</option><option>Dishwashing</option><option>Surface Cleaners</option><option>Disinfectants</option><option>Personal Care</option></select>
+        <button class="btn btn-primary" onclick="openModal('modal-product')">+ منتج جديد</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="tbl" id="prod-tbl">
+            <thead><tr><th>كود المنتج</th><th>اسم المنتج</th><th>الفئة</th><th>الوحدة</th><th>نوع الخامة</th><th>الحجم</th><th>التصنيف</th><th>سعر البيع</th><th>تكلفة الإنتاج</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+            <tbody id="products-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ INVENTORY ══════ -->
+    <div class="page" id="page-inventory">
+      <div class="g4">
+        <div class="kpi c1"><div class="kpi-icon">📦</div><div class="kpi-label">TOTAL SKUs</div><div class="kpi-val">١٤٨</div><div class="kpi-ch neu">منتج في المخزون</div></div>
+        <div class="kpi c2"><div class="kpi-icon">⚠️</div><div class="kpi-label">LOW STOCK</div><div class="kpi-val">٧</div><div class="kpi-ch dn">تحت نقطة الإعادة</div></div>
+        <div class="kpi c3"><div class="kpi-icon">🚫</div><div class="kpi-label">OUT OF STOCK</div><div class="kpi-val">٢</div><div class="kpi-ch dn">نفد من المخزون</div></div>
+        <div class="kpi c4"><div class="kpi-icon">💰</div><div class="kpi-label">INVENTORY VALUE</div><div class="kpi-val">٦٨٤K</div><div class="kpi-ch up">↑ +12% هذا الشهر</div></div>
+      </div>
+      <div class="filter-bar">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="بحث..."></div>
+        <select class="filter-select"><option>كل الحالات</option><option>Safe</option><option>Low</option><option>Reorder</option><option>Out</option><option>Blocked</option></select>
+        <select class="filter-select"><option>كل المواقع</option><option>Home</option></select>
+        <button class="btn btn-primary" onclick="openModal('modal-stock-adj')">+ تعديل مخزون</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="tbl" id="inv-tbl">
+            <thead><tr><th>المنتج</th><th>الفئة</th><th>الوحدة</th><th>الكمية الفعلية</th><th>نقطة الإعادة</th><th>الكمية الآمنة</th><th>حالة المخزون</th><th>الموقع</th><th>آخر تحديث</th><th>إجراءات</th></tr></thead>
+            <tbody id="inventory-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ EXPIRY ══════ -->
+    <div class="page" id="page-expiry">
+      <div class="g3 mb">
+        <div class="alert-item ai-d" style="margin:0"><div class="ai-icon d">🔴</div><div class="ai-body"><div class="ai-title">منتهي الصلاحية</div><div class="ai-sub">يجب سحبه فوراً</div></div><div class="ai-count d">٣</div></div>
+        <div class="alert-item ai-w" style="margin:0"><div class="ai-icon w">🟡</div><div class="ai-body"><div class="ai-title">ينتهي خلال 30 يوم</div><div class="ai-sub">يحتاج متابعة</div></div><div class="ai-count w">٥</div></div>
+        <div class="alert-item ai-s" style="margin:0"><div class="ai-icon s">🟢</div><div class="ai-body"><div class="ai-title">صالح أكثر من 90 يوم</div><div class="ai-sub">في المعدل الطبيعي</div></div><div class="ai-count s">١٤٠</div></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">⏰ سجل الصلاحية</div></div>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>المنتج</th><th>الدفعة</th><th>الكمية</th><th>تاريخ الإنتاج</th><th>تاريخ الانتهاء</th><th>الأيام المتبقية</th><th>نوع التنبيه</th><th>الإجراء المتخذ</th></tr></thead>
+            <tbody>
+              <tr><td>Clean Pro 5L Surface</td><td class="mono">B-2025-089</td><td>240 Piece</td><td class="mono">2025-07-15</td><td class="mono" style="color:var(--danger)">2026-01-10</td><td><span class="badge bd">7 يوم</span></td><td><span class="pill pill-canc">Expiry</span></td><td><span class="pill pill-pend">Re-Work</span></td></tr>
+              <tr><td>Dishwash Liquid 1L</td><td class="mono">B-2025-091</td><td>120 Liter</td><td class="mono">2025-08-01</td><td class="mono" style="color:var(--danger)">2026-01-14</td><td><span class="badge bd">11 يوم</span></td><td><span class="pill pill-canc">Expiry</span></td><td><span class="pill pill-pend">Hold</span></td></tr>
+              <tr><td>Air Fresh Sunset 500ml</td><td class="mono">B-2025-078</td><td>80 Bottle</td><td class="mono">2025-06-20</td><td class="mono" style="color:var(--danger)">2026-01-20</td><td><span class="badge bw">17 يوم</span></td><td><span class="pill pill-canc">Expiry</span></td><td><span class="pill pill-pend">Scrap</span></td></tr>
+              <tr><td>Disinfectant Pro 3L</td><td class="mono">B-2025-095</td><td>560 Piece</td><td class="mono">2025-10-01</td><td class="mono" style="color:var(--warning)">2026-02-15</td><td><span class="badge bw">43 يوم</span></td><td><span class="pill pill-pend">Low Stock</span></td><td>—</td></tr>
+              <tr><td>Laundry Powder 2L</td><td class="mono">B-2025-102</td><td>1,200 Kg</td><td class="mono">2025-11-15</td><td class="mono" style="color:var(--success)">2026-05-15</td><td><span class="badge bs">132 يوم</span></td><td><span class="pill pill-act">Safe</span></td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ PRODUCTION ══════ -->
+    <div class="page" id="page-production">
+      <div class="g4">
+        <div class="kpi c1"><div class="kpi-icon">🏭</div><div class="kpi-label">BATCHES THIS MONTH</div><div class="kpi-val">٢٣</div><div class="kpi-ch up">↑ +4 من الشهر الماضي</div></div>
+        <div class="kpi c2"><div class="kpi-icon">✅</div><div class="kpi-label">COMPLETED</div><div class="kpi-val">١٨</div><div class="kpi-ch up">٧٨% معدل إتمام</div></div>
+        <div class="kpi c3"><div class="kpi-icon">🔄</div><div class="kpi-label">IN PROGRESS</div><div class="kpi-val">٤</div><div class="kpi-ch neu">جارية الآن</div></div>
+        <div class="kpi c4"><div class="kpi-icon">⚠️</div><div class="kpi-label">NEEDS QC</div><div class="kpi-val">١</div><div class="kpi-ch dn">بانتظار الفحص</div></div>
+      </div>
+      <div class="filter-bar">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="بحث برقم الدفعة..."></div>
+        <select class="filter-select"><option>كل الحالات</option><option>Completed</option><option>In Progress</option><option>QC</option><option>On Hold</option></select>
+        <button class="btn btn-primary" onclick="openModal('modal-batch')">+ دفعة جديدة</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="tbl" id="prod-batches-tbl">
+            <thead><tr><th>رقم الدفعة</th><th>المنتج</th><th>الكمية المخططة</th><th>الكمية الفعلية</th><th>الهدر</th><th>تاريخ البدء</th><th>تاريخ الانتهاء</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+            <tbody id="production-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ QUALITY ══════ -->
+    <div class="page" id="page-quality">
+      <div class="filter-bar">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="بحث..."></div>
+        <select class="filter-select"><option>كل النتائج</option><option>Accepted</option><option>Rejected</option><option>Re-Work</option><option>Hold</option></select>
+        <button class="btn btn-primary" onclick="openModal('modal-qc')">+ فحص جديد</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>رقم الفحص</th><th>الدفعة</th><th>المنتج</th><th>الكمية المفحوصة</th><th>المقبول</th><th>المرفوض</th><th>الإجراء</th><th>المسؤول</th><th>التاريخ</th></tr></thead>
+            <tbody>
+              <tr><td class="mono accent">#QC-0145</td><td class="mono">B-2025-102</td><td>Laundry Powder 2L</td><td>1,200</td><td style="color:var(--success)">1,180</td><td style="color:var(--danger)">20</td><td><span class="pill pill-paid">Accepted</span></td><td>محمد أحمد</td><td class="mono">2026-01-02</td></tr>
+              <tr><td class="mono accent">#QC-0144</td><td class="mono">B-2025-095</td><td>Disinfectant Pro 3L</td><td>560</td><td style="color:var(--success)">520</td><td style="color:var(--danger)">40</td><td><span class="pill pill-pend">Re-Work</span></td><td>سارة محمد</td><td class="mono">2025-12-30</td></tr>
+              <tr><td class="mono accent">#QC-0143</td><td class="mono">B-2025-091</td><td>Dishwash Liquid 1L</td><td>120</td><td style="color:var(--success)">0</td><td style="color:var(--danger)">120</td><td><span class="pill pill-canc">Rejected</span></td><td>علي حسن</td><td class="mono">2025-12-28</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ WASTE ══════ -->
+    <div class="page" id="page-waste">
+      <div class="g3">
+        <div class="kpi c2"><div class="kpi-icon">♻️</div><div class="kpi-label">TOTAL WASTE</div><div class="kpi-val">٢.٤%</div><div class="kpi-ch dn">من الإنتاج الكلي</div></div>
+        <div class="kpi c3"><div class="kpi-icon">💰</div><div class="kpi-label">WASTE VALUE</div><div class="kpi-val">١٢,٤٠٠</div><div class="kpi-ch dn">جنيه خسارة</div></div>
+        <div class="kpi c4"><div class="kpi-icon">🔍</div><div class="kpi-label">TOP REASON</div><div class="kpi-val" style="font-size:14px">QC Rejected</div><div class="kpi-ch neu">السبب الأكثر</div></div>
+      </div>
+      <div class="filter-bar">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="بحث..."></div>
+        <button class="btn btn-primary" onclick="openModal('modal-waste')">+ تسجيل هدر</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>المنتج</th><th>الدفعة</th><th>سبب الهدر</th><th>الكمية</th><th>الوحدة</th><th>القيمة</th><th>الإجراء</th><th>التاريخ</th></tr></thead>
+            <tbody>
+              <tr><td>Dishwash Liquid 1L</td><td class="mono">B-2025-091</td><td>QC Rejected</td><td>120</td><td>Liter</td><td class="neg">-4,800</td><td><span class="pill pill-canc">Scrap</span></td><td class="mono">2025-12-28</td></tr>
+              <tr><td>Disinfectant Pro 3L</td><td class="mono">B-2025-095</td><td>Production Defect</td><td>40</td><td>Piece</td><td class="neg">-3,200</td><td><span class="pill pill-pend">Re-Work</span></td><td class="mono">2025-12-30</td></tr>
+              <tr><td>Laundry Powder 2L</td><td class="mono">B-2025-102</td><td>Handling Damage</td><td>20</td><td>Kg</td><td class="neg">-2,400</td><td><span class="pill pill-proc">Discounted Sale</span></td><td class="mono">2026-01-02</td></tr>
+              <tr><td>Air Fresh Sunset</td><td class="mono">B-2025-078</td><td>Expired</td><td>80</td><td>Bottle</td><td class="neg">-2,000</td><td><span class="pill pill-canc">Scrap</span></td><td class="mono">2026-01-03</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ SUPPLIERS ══════ -->
+    <div class="page" id="page-suppliers">
+      <div class="filter-bar">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="بحث بالمورد أو الكود..."></div>
+        <select class="filter-select"><option>كل الفئات</option><option>Materials</option><option>Plastic</option><option>Packaging</option><option>Printing</option><option>Labels</option></select>
+        <button class="btn btn-primary" onclick="openModal('modal-supplier')">+ مورد جديد</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="tbl" id="supp-tbl">
+            <thead><tr><th>كود المورد</th><th>اسم المورد</th><th>الفئة</th><th>الهاتف</th><th>إجمالي المشتريات</th><th>رصيد مستحق</th><th>مدة السداد</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+            <tbody id="suppliers-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ PURCHASES ══════ -->
+    <div class="page" id="page-purchases">
+      <div class="filter-bar">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="بحث بأمر الشراء..."></div>
+        <select class="filter-select"><option>كل الحالات</option><option>Paid</option><option>Pending</option><option>Deferred</option></select>
+        <button class="btn btn-primary" onclick="openModal('modal-purchase')">+ أمر شراء</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>رقم PO</th><th>المورد</th><th>الخامة</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th><th>طريقة الدفع</th><th>الحالة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+            <tbody>
+              <tr><td class="mono accent">#PO-0201</td><td>مصنع النيل الكيماوي</td><td>Liquid Base</td><td>500 L</td><td>45</td><td class="pos">22,500</td><td>Visa</td><td><span class="pill pill-paid">Paid</span></td><td class="mono">2026-01-01</td><td><div class="acts"><button class="btn btn-secondary btn-sm">👁 عرض</button><button class="btn btn-secondary btn-sm">✏️ تعديل</button></div></td></tr>
+              <tr><td class="mono accent">#PO-0200</td><td>شركة البلاستيك المتحدة</td><td>HDPE Bottles</td><td>10,000 Piece</td><td>2.5</td><td class="pos">25,000</td><td>Bank Transfer</td><td><span class="pill pill-pend">Pending</span></td><td class="mono">2025-12-28</td><td><div class="acts"><button class="btn btn-secondary btn-sm">👁 عرض</button><button class="btn btn-secondary btn-sm">✏️ تعديل</button></div></td></tr>
+              <tr><td class="mono accent">#PO-0199</td><td>مطبعة الإبداع</td><td>Labels Pack</td><td>50,000 Piece</td><td>0.15</td><td class="pos">7,500</td><td>Cash</td><td><span class="pill pill-paid">Paid</span></td><td class="mono">2025-12-25</td><td><div class="acts"><button class="btn btn-secondary btn-sm">👁 عرض</button><button class="btn btn-secondary btn-sm">✏️ تعديل</button></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ EMPLOYEES ══════ -->
+    <div class="page" id="page-employees">
+      <div class="filter-bar">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="بحث بالاسم أو الكود..." oninput="filterTable('emp-tbl',this.value)"></div>
+        <select class="filter-select"><option>كل الأقسام</option><option>Production</option><option>Sales</option><option>Admin</option><option>Logistics</option></select>
+        <select class="filter-select"><option>كل الحالات</option><option>Active</option><option>On Leave</option><option>Suspended</option></select>
+        <button class="btn btn-primary" onclick="openModal('modal-employee')">+ موظف جديد</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="tbl" id="emp-tbl">
+            <thead><tr><th>كود</th><th>الاسم</th><th>المنصب</th><th>القسم</th><th>نوع التوظيف</th><th>الراتب الأساسي</th><th>تاريخ الانضمام</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+            <tbody id="employees-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ PAYROLL ══════ -->
+    <div class="page" id="page-payroll">
+      <div class="g4">
+        <div class="kpi c1"><div class="kpi-icon">💵</div><div class="kpi-label">TOTAL PAYROLL</div><div class="kpi-val">٢٨٥K</div><div class="kpi-ch neu">هذا الشهر</div></div>
+        <div class="kpi c2"><div class="kpi-icon">⏰</div><div class="kpi-label">OVERTIME COST</div><div class="kpi-val">١٢,٤٠٠</div><div class="kpi-ch dn">↑ +8% من الشهر</div></div>
+        <div class="kpi c3"><div class="kpi-icon">📋</div><div class="kpi-label">TOTAL HOURS OT</div><div class="kpi-val">١٢٤ hr</div><div class="kpi-ch neu">إجمالي الأوفرتايم</div></div>
+        <div class="kpi c4"><div class="kpi-icon">✅</div><div class="kpi-label">PAID</div><div class="kpi-val">٤٢/٤٧</div><div class="kpi-ch pend">٥ معلقين</div></div>
+      </div>
+      <div class="filter-bar">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="بحث بالموظف..."></div>
+        <select class="filter-select"><option>يناير 2026</option><option>ديسمبر 2025</option><option>نوفمبر 2025</option></select>
+        <button class="btn btn-primary" onclick="showToast('تم صرف رواتب الشهر بنجاح ✓','s')">💵 صرف الرواتب</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>الموظف</th><th>المنصب</th><th>الراتب الأساسي</th><th>ساعات أوفرتايم</th><th>قيمة الأوفرتايم</th><th>الخصومات</th><th>الصافي</th><th>حالة الصرف</th><th>إجراءات</th></tr></thead>
+            <tbody id="payroll-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ ATTENDANCE ══════ -->
+    <div class="page" id="page-attendance">
+      <div class="g4">
+        <div class="kpi c1"><div class="kpi-icon">✅</div><div class="kpi-label">PRESENT TODAY</div><div class="kpi-val">٤٢</div><div class="kpi-ch up">89% نسبة الحضور</div></div>
+        <div class="kpi c2"><div class="kpi-icon">❌</div><div class="kpi-label">ABSENT</div><div class="kpi-val">٥</div><div class="kpi-ch dn">غائب بدون إذن</div></div>
+        <div class="kpi c3"><div class="kpi-icon">🏖️</div><div class="kpi-label">ON LEAVE</div><div class="kpi-val">٣</div><div class="kpi-ch neu">إجازة رسمية</div></div>
+        <div class="kpi c4"><div class="kpi-icon">⏰</div><div class="kpi-label">LATE ARRIVALS</div><div class="kpi-val">٧</div><div class="kpi-ch dn">تأخير اليوم</div></div>
+      </div>
+      <div class="filter-bar">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="بحث..."></div>
+        <input type="date" class="filter-select" value="2026-01-03">
+        <select class="filter-select"><option>كل الحالات</option><option>Present</option><option>Absent</option><option>Late</option><option>Leave</option></select>
+        <button class="btn btn-primary" onclick="openModal('modal-attendance')">+ تسجيل حضور</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>الموظف</th><th>المنصب</th><th>وقت الدخول</th><th>وقت الخروج</th><th>ساعات العمل</th><th>أوفرتايم</th><th>الحالة</th><th>ملاحظات</th></tr></thead>
+            <tbody id="attendance-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ EXPENSES ══════ -->
+    <div class="page" id="page-expenses">
+      <div class="g4">
+        <div class="kpi c1"><div class="kpi-icon">💸</div><div class="kpi-label">TOTAL EXPENSES</div><div class="kpi-val">١٨٤K</div><div class="kpi-ch dn">↑ هذا الشهر</div></div>
+        <div class="kpi c2"><div class="kpi-icon">🏭</div><div class="kpi-label">PRODUCTION</div><div class="kpi-val">٨٢K</div><div class="kpi-ch neu">44% من الكل</div></div>
+        <div class="kpi c3"><div class="kpi-icon">🏢</div><div class="kpi-label">ADMIN</div><div class="kpi-val">٤٨K</div><div class="kpi-ch neu">26% من الكل</div></div>
+        <div class="kpi c4"><div class="kpi-icon">📦</div><div class="kpi-label">LOGISTICS</div><div class="kpi-val">٣٢K</div><div class="kpi-ch neu">17% من الكل</div></div>
+      </div>
+      <div class="filter-bar">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="بحث..."></div>
+        <select class="filter-select"><option>كل الأقسام</option><option>Production</option><option>Admin</option><option>Sales</option><option>Logistics</option></select>
+        <select class="filter-select"><option>كل أنواع المصروف</option><option>Salaries</option><option>Electricity</option><option>Rent</option><option>Transport</option><option>Marketing</option></select>
+        <button class="btn btn-primary" onclick="openModal('modal-expense')">+ مصروف جديد</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="tbl" id="exp-tbl">
+            <thead><tr><th>رقم المصروف</th><th>نوع المصروف</th><th>الفئة</th><th>القسم</th><th>المبلغ</th><th>العملة</th><th>حالة الدفع</th><th>التاريخ</th><th>ملاحظات</th><th>إجراءات</th></tr></thead>
+            <tbody id="expenses-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ RECEIVABLES ══════ -->
+    <div class="page" id="page-receivables">
+      <div class="g3">
+        <div class="kpi c1"><div class="kpi-icon">📥</div><div class="kpi-label">TOTAL RECEIVABLES</div><div class="kpi-val">٣٢٤K</div><div class="kpi-ch dn">إجمالي المستحق</div></div>
+        <div class="kpi c2"><div class="kpi-icon">⚠️</div><div class="kpi-label">OVERDUE +30D</div><div class="kpi-val">٨٦K</div><div class="kpi-ch dn">تعدى 30 يوم</div></div>
+        <div class="kpi c3"><div class="kpi-icon">✅</div><div class="kpi-label">COLLECTED THIS MONTH</div><div class="kpi-val">١٥٢K</div><div class="kpi-ch up">↑ +22% تحسن</div></div>
+      </div>
+      <div class="filter-bar">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="بحث بالعميل..."></div>
+        <select class="filter-select"><option>كل الحالات</option><option>Current</option><option>Overdue</option><option>Critical</option></select>
+        <button class="btn btn-primary" onclick="openModal('modal-receivable')">+ تسجيل تحصيل</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>العميل</th><th>رقم الفاتورة</th><th>المبلغ الأصلي</th><th>المسدد</th><th>المتبقي</th><th>تاريخ الاستحقاق</th><th>أيام التأخير</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+            <tbody>
+              <tr><td>شركة النور للتجارة</td><td class="mono accent">#INV-2380</td><td>84,500</td><td style="color:var(--success)">84,500</td><td style="color:var(--success)">0</td><td class="mono">2025-12-15</td><td><span class="badge bs">محصل</span></td><td><span class="pill pill-paid">Paid</span></td><td><button class="btn btn-secondary btn-sm">👁 عرض</button></td></tr>
+              <tr><td>مؤسسة الأمل</td><td class="mono accent">#INV-2400</td><td>23,200</td><td style="color:var(--warning)">10,000</td><td style="color:var(--danger)">13,200</td><td class="mono">2025-12-20</td><td><span class="badge bw">14 يوم</span></td><td><span class="pill pill-pend">Overdue</span></td><td><div class="acts"><button class="btn btn-secondary btn-sm">📞 تذكير</button><button class="btn btn-primary btn-sm">تسجيل دفع</button></div></td></tr>
+              <tr><td>توزيع الخليج</td><td class="mono accent">#INV-2375</td><td>47,000</td><td style="color:var(--warning)">20,000</td><td style="color:var(--danger)">27,000</td><td class="mono">2025-11-30</td><td><span class="badge bd">34 يوم</span></td><td><span class="pill pill-canc">Critical</span></td><td><div class="acts"><button class="btn btn-danger btn-sm">⚠️ إجراء قانوني</button></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ PROFIT ══════ -->
+    <div class="page" id="page-profit">
+      <div class="g4">
+        <div class="kpi c1"><div class="kpi-icon">💰</div><div class="kpi-label">REVENUE</div><div class="kpi-val">١.٢٤M</div><div class="kpi-ch up">↑ +18.4%</div></div>
+        <div class="kpi c2"><div class="kpi-icon">💸</div><div class="kpi-label">TOTAL COSTS</div><div class="kpi-val">٨٦٤K</div><div class="kpi-ch dn">↑ +12% التكاليف</div></div>
+        <div class="kpi c3"><div class="kpi-icon">📊</div><div class="kpi-label">GROSS PROFIT</div><div class="kpi-val">٣٧٦K</div><div class="kpi-ch up">هامش 30.3%</div></div>
+        <div class="kpi c4"><div class="kpi-icon">🎯</div><div class="kpi-label">NET PROFIT</div><div class="kpi-val">٢٢٤K</div><div class="kpi-ch up">صافي 18.1%</div></div>
+      </div>
+      <div class="g2e">
+        <div class="card">
+          <div class="card-hd"><div class="card-title">📊 بيان الأرباح والخسائر</div><span class="badge bg">يناير 2026</span></div>
+          <div class="card-bd">
+            <div class="det-row"><div class="det-label">إجمالي المبيعات</div><div class="det-val" style="color:var(--accent)">1,240,000</div></div>
+            <div class="det-row"><div class="det-label">المرتجعات والخصومات</div><div class="det-val" style="color:var(--danger)">-28,000</div></div>
+            <div class="det-row"><div class="det-label" style="font-weight:700">صافي المبيعات</div><div class="det-val" style="color:var(--accent);font-size:15px">1,212,000</div></div>
+            <div style="height:1px;background:var(--border);margin:10px 0"></div>
+            <div class="det-row"><div class="det-label">تكلفة الإنتاج (COGS)</div><div class="det-val" style="color:var(--danger)">-724,000</div></div>
+            <div class="det-row"><div class="det-label" style="font-weight:700">إجمالي الربح</div><div class="det-val" style="color:var(--success);font-size:15px">488,000</div></div>
+            <div style="height:1px;background:var(--border);margin:10px 0"></div>
+            <div class="det-row"><div class="det-label">رواتب وموارد بشرية</div><div class="det-val" style="color:var(--danger)">-285,000</div></div>
+            <div class="det-row"><div class="det-label">إيجارات ومرافق</div><div class="det-val" style="color:var(--danger)">-48,000</div></div>
+            <div class="det-row"><div class="det-label">تسويق وإعلانات</div><div class="det-val" style="color:var(--danger)">-22,000</div></div>
+            <div class="det-row"><div class="det-label">مصروفات إدارية</div><div class="det-val" style="color:var(--danger)">-18,000</div></div>
+            <div style="height:1px;background:var(--border);margin:10px 0"></div>
+            <div class="det-row"><div class="det-label" style="font-weight:700;font-size:15px">صافي الربح</div><div class="det-val" style="color:var(--accent);font-size:18px;font-weight:900">115,000</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title">🍩 توزيع التكاليف</div></div>
+          <div class="card-bd">
+            <div class="donut-wrap">
+              <div class="donut" style="width:150px;height:150px">
+                <svg viewBox="0 0 140 140">
+                  <circle cx="70" cy="70" r="55" fill="none" stroke="#1e2840" stroke-width="20"/>
+                  <circle cx="70" cy="70" r="55" fill="none" stroke="#ff6b35" stroke-width="20" stroke-dasharray="194 151" stroke-dashoffset="0"/>
+                  <circle cx="70" cy="70" r="55" fill="none" stroke="#7c6dfa" stroke-width="20" stroke-dasharray="77 268" stroke-dashoffset="-194"/>
+                  <circle cx="70" cy="70" r="55" fill="none" stroke="#f7c948" stroke-width="20" stroke-dasharray="55 290" stroke-dashoffset="-271"/>
+                  <circle cx="70" cy="70" r="55" fill="none" stroke="#38bdf8" stroke-width="20" stroke-dasharray="45 300" stroke-dashoffset="-326"/>
+                </svg>
+                <div class="donut-center"><div class="donut-val" style="color:var(--accent2)">58%</div><div class="donut-sub">إنتاج</div></div>
+              </div>
+              <div class="legend">
+                <div class="leg-item"><div class="leg-l"><div class="leg-dot" style="background:var(--accent2)"></div>تكلفة الإنتاج</div><span class="leg-v">58%</span></div>
+                <div class="leg-item"><div class="leg-l"><div class="leg-dot" style="background:var(--accent3)"></div>الرواتب</div><span class="leg-v">23%</span></div>
+                <div class="leg-item"><div class="leg-l"><div class="leg-dot" style="background:var(--accent4)"></div>إيجارات</div><span class="leg-v">9%</span></div>
+                <div class="leg-item"><div class="leg-l"><div class="leg-dot" style="background:var(--info)"></div>تسويق</div><span class="leg-v">7%</span></div>
+                <div class="leg-item"><div class="leg-l"><div class="leg-dot" style="background:var(--text-dim)"></div>إداري</div><span class="leg-v">3%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ SETTINGS ══════ -->
+    <div class="page" id="page-settings">
+      <div class="tabs">
+        <div class="tab active" onclick="switchSettingsTab(this,'stab-dv')">قوائم البيانات</div>
+        <div class="tab" onclick="switchSettingsTab(this,'stab-company')">بيانات الشركة</div>
+        <div class="tab" onclick="switchSettingsTab(this,'stab-users')">المستخدمين</div>
+      </div>
+      <div id="stab-dv">
+        <div class="g3">
+          <div class="card"><div class="card-hd"><div class="card-title">👔 المناصب الوظيفية</div><div class="card-act" onclick="addSettingItem('jobs-list')">+ إضافة</div></div><div class="card-bd" id="jobs-list"><div class="ms"><span>Administrative Officer</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Production Supervisor</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Sales Supervisor</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Accountant</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Quality Control Officer</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div></div></div>
+          <div class="card"><div class="card-hd"><div class="card-title">📦 فئات المنتجات</div><div class="card-act" onclick="addSettingItem('cats-list')">+ إضافة</div></div><div class="card-bd" id="cats-list"><div class="ms"><span>Laundry Care</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Dishwashing</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Surface Cleaners</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Disinfectants</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Personal Care</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Air Fresheners</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div></div></div>
+          <div class="card"><div class="card-hd"><div class="card-title">💳 طرق الدفع</div><div class="card-act" onclick="addSettingItem('pay-list')">+ إضافة</div></div><div class="card-bd" id="pay-list"><div class="ms"><span>Cash</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Visa</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Instapay</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Vodafone Cash</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Bank Transfer</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Wallet</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div></div></div>
+          <div class="card"><div class="card-hd"><div class="card-title">🚚 أنواع الموردين</div><div class="card-act" onclick="addSettingItem('supp-types-list')">+ إضافة</div></div><div class="card-bd" id="supp-types-list"><div class="ms"><span>Materials</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Plastic</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Packaging</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Labels</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Lab Tools</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div></div></div>
+          <div class="card"><div class="card-hd"><div class="card-title">♻️ أسباب الهدر</div><div class="card-act" onclick="addSettingItem('waste-list')">+ إضافة</div></div><div class="card-bd" id="waste-list"><div class="ms"><span>Production Defect</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Expired</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Handling Damage</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Storage Damage</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>QC Rejected</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div></div></div>
+          <div class="card"><div class="card-hd"><div class="card-title">💰 أنواع المصروفات</div><div class="card-act" onclick="addSettingItem('exp-types-list')">+ إضافة</div></div><div class="card-bd" id="exp-types-list"><div class="ms"><span>Salaries</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Electricity</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Rent</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Transport</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div><div class="ms"><span>Marketing</span><div class="acts"><button class="btn btn-secondary btn-sm btn-icon">✏️</button><button class="btn btn-danger btn-sm btn-icon">🗑</button></div></div></div></div>
+        </div>
+      </div>
+      <div id="stab-company" style="display:none">
+        <div class="card" style="max-width:600px">
+          <div class="card-hd"><div class="card-title">🏢 بيانات الشركة</div></div>
+          <div class="card-bd">
+            <div class="form-grid">
+              <div class="fg"><label>اسم الشركة</label><input type="text" value="NEXUS Manufacturing Co."></div>
+              <div class="fg"><label>رقم الضريبي</label><input type="text" value="TN-2024-00891"></div>
+              <div class="fg"><label>الهاتف</label><input type="text" value="+20 100 000 0000"></div>
+              <div class="fg"><label>البريد الإلكتروني</label><input type="text" value="admin@nexus-erp.com"></div>
+              <div class="fg form-full"><label>العنوان</label><input type="text" value="المنطقة الصناعية، القاهرة، مصر"></div>
+              <div class="fg"><label>العملة الأساسية</label><select><option>EGP - جنيه مصري</option><option>USD - دولار</option></select></div>
+              <div class="fg"><label>بداية السنة المالية</label><input type="month" value="2026-01"></div>
+            </div>
+            <div style="margin-top:16px;display:flex;gap:10px">
+              <button class="btn btn-primary" onclick="showToast('تم حفظ بيانات الشركة ✓','s')">💾 حفظ</button>
+              <button class="btn btn-secondary">إلغاء</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="stab-users" style="display:none">
+        <div class="card">
+          <div class="card-hd"><div class="card-title">👤 المستخدمين والصلاحيات</div><button class="btn btn-primary btn-sm" onclick="showToast('قريباً: إضافة مستخدمين جدد','w')">+ إضافة مستخدم</button></div>
+          <div class="tbl-wrap">
+            <table class="tbl">
+              <thead><tr><th>المستخدم</th><th>البريد</th><th>الدور</th><th>الصلاحيات</th><th>آخر دخول</th><th>الحالة</th></tr></thead>
+              <tbody>
+                <tr><td>المدير العام</td><td class="mono"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="28494c45414668464d505d5b064b4745">[email&#160;protected]</a></td><td><span class="badge bp">Admin</span></td><td>كاملة</td><td class="mono">2026-01-03</td><td><span class="pill pill-act">Active</span></td></tr>
+                <tr><td>محمد أحمد</td><td class="mono"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a5c88bc4cdc8c0c1e5cbc0ddd0d68bc6cac8">[email&#160;protected]</a></td><td><span class="badge bg">مدير إنتاج</span></td><td>إنتاج + مخزون</td><td class="mono">2026-01-03</td><td><span class="pill pill-act">Active</span></td></tr>
+                <tr><td>سارة محمد</td><td class="mono"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="780b5615171019151d1c38161d000d0b561b1715">[email&#160;protected]</a></td><td><span class="badge by">مبيعات</span></td><td>مبيعات + عملاء</td><td class="mono">2026-01-02</td><td><span class="pill pill-act">Active</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ ACTIVITY LOG ══════ -->
+    <div class="page" id="page-actlog">
+      <div class="filter-bar">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="بحث في السجل..."></div>
+        <select class="filter-select"><option>كل الأنشطة</option><option>إضافة</option><option>تعديل</option><option>حذف</option><option>بيع</option></select>
+        <input type="date" class="filter-select" value="2026-01-03">
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>الوقت</th><th>المستخدم</th><th>النشاط</th><th>الوحدة</th><th>التفاصيل</th><th>العنصر</th></tr></thead>
+            <tbody id="actlog-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ═══════════════ MODALS ═══════════════ -->
+
+<!-- Sale Modal -->
+<div class="modal-overlay" id="modal-sale">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">🧾 فاتورة مبيعات جديدة</div><div class="modal-close" onclick="closeModal('modal-sale')">✕</div></div>
+    <div class="modal-bd">
+      <div class="form-grid">
+        <div class="fg"><label>العميل</label><select><option>اختر العميل...</option><option>شركة النور للتجارة</option><option>مؤسسة الأمل</option><option>Ahmed Retail</option><option>الشركة المتحدة</option></select></div>
+        <div class="fg"><label>نوع البيع</label><select><option>Online</option><option>Branch</option><option>Direct</option><option>Distributor</option></select></div>
+        <div class="fg"><label>طريقة الدفع</label><select><option>Cash</option><option>Visa</option><option>Instapay</option><option>Vodafone Cash</option><option>Bank Transfer</option><option>Deferred</option></select></div>
+        <div class="fg"><label>نوع العميل</label><select><option>Individual</option><option>Wholesale</option><option>Corporate</option><option>VIP</option><option>Distributor</option></select></div>
+        <div class="fg"><label>المنتج</label><select><option>اختر المنتج...</option><option>Laundry Powder 2L</option><option>Dishwash Liquid 1L</option><option>Surface Cleaner 5L</option><option>Disinfectant Pro 3L</option></select></div>
+        <div class="fg"><label>الكمية</label><input type="number" placeholder="0" min="1"></div>
+        <div class="fg"><label>سعر الوحدة</label><input type="number" placeholder="0.00"></div>
+        <div class="fg"><label>الخصم %</label><input type="number" placeholder="0" min="0" max="100"></div>
+        <div class="fg"><label>نوع الضريبة</label><select><option>بدون ضريبة</option><option>VAT 14%</option></select></div>
+        <div class="fg"><label>تاريخ الفاتورة</label><input type="date" value="2026-01-03"></div>
+        <div class="fg form-full"><label>ملاحظات</label><textarea placeholder="ملاحظات إضافية..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-secondary" onclick="closeModal('modal-sale')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveRecord('sale')">💾 حفظ الفاتورة</button>
+    </div>
+  </div>
+</div>
+
+<!-- Customer Modal -->
+<div class="modal-overlay" id="modal-customer">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">👥 عميل جديد</div><div class="modal-close" onclick="closeModal('modal-customer')">✕</div></div>
+    <div class="modal-bd">
+      <div class="form-grid">
+        <div class="fg"><label>اسم العميل</label><input type="text" placeholder="الاسم الكامل"></div>
+        <div class="fg"><label>نوع العميل</label><select><option>Individual</option><option>Wholesale</option><option>Corporate</option><option>VIP</option><option>Distributor</option></select></div>
+        <div class="fg"><label>الهاتف</label><input type="tel" placeholder="+20..."></div>
+        <div class="fg"><label>البريد الإلكتروني</label><input type="email" placeholder="email@example.com"></div>
+        <div class="fg"><label>الحالة الاجتماعية</label><select><option>Single</option><option>Married</option><option>Divorced</option></select></div>
+        <div class="fg"><label>الجنس</label><select><option>Male</option><option>Female</option></select></div>
+        <div class="fg form-full"><label>العنوان</label><input type="text" placeholder="العنوان التفصيلي"></div>
+        <div class="fg"><label>حد الائتمان</label><input type="number" placeholder="0"></div>
+        <div class="fg"><label>مدة السداد (يوم)</label><input type="number" placeholder="30"></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-secondary" onclick="closeModal('modal-customer')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveRecord('customer')">💾 حفظ العميل</button>
+    </div>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div class="modal-overlay" id="modal-product">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">🏷️ منتج جديد</div><div class="modal-close" onclick="closeModal('modal-product')">✕</div></div>
+    <div class="modal-bd">
+      <div class="form-grid">
+        <div class="fg"><label>اسم المنتج</label><input type="text" placeholder="اسم المنتج"></div>
+        <div class="fg"><label>الفئة</label><select><option>Laundry Care</option><option>Dishwashing</option><option>Surface Cleaners</option><option>Disinfectants</option><option>Personal Care</option><option>Air Fresheners</option><option>Car Care</option></select></div>
+        <div class="fg"><label>الوحدة</label><select><option>Piece</option><option>Liter</option><option>Kg</option><option>ML</option><option>Gram</option><option>Bottle</option></select></div>
+        <div class="fg"><label>نوع الخامة</label><select><option>Liquid</option><option>Solid</option><option>Powder</option><option>Gas</option></select></div>
+        <div class="fg"><label>الحجم</label><select><option>500ML</option><option>1L</option><option>2L</option><option>3L</option><option>5L</option></select></div>
+        <div class="fg"><label>اللون</label><select><option>Sunset</option><option>Red</option><option>White</option><option>Green</option><option>Blue</option><option>Yellow</option><option>Pink</option></select></div>
+        <div class="fg"><label>التصنيف</label><select><option>A</option><option>B</option><option>C</option></select></div>
+        <div class="fg"><label>سعر البيع</label><input type="number" placeholder="0.00"></div>
+        <div class="fg"><label>تكلفة الإنتاج</label><input type="number" placeholder="0.00"></div>
+        <div class="fg"><label>الحالة</label><select><option>Active</option><option>Inactive</option></select></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-secondary" onclick="closeModal('modal-product')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveRecord('product')">💾 حفظ المنتج</button>
+    </div>
+  </div>
+</div>
+
+<!-- Employee Modal -->
+<div class="modal-overlay" id="modal-employee">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">👔 موظف جديد</div><div class="modal-close" onclick="closeModal('modal-employee')">✕</div></div>
+    <div class="modal-bd">
+      <div class="form-grid">
+        <div class="fg"><label>الاسم الكامل</label><input type="text" placeholder="الاسم"></div>
+        <div class="fg"><label>المنصب</label><select><option>Administrative Officer</option><option>Production Supervisor</option><option>Sales Supervisor</option><option>Accountant</option><option>Quality Control Officer</option><option>Inventory Controller</option><option>Data Analyst</option><option>Delivery</option></select></div>
+        <div class="fg"><label>القسم</label><select><option>Production</option><option>Sales</option><option>Admin</option><option>Logistics</option><option>Finance</option></select></div>
+        <div class="fg"><label>نوع التوظيف</label><select><option>Contract</option><option>Monthly</option><option>Daily</option></select></div>
+        <div class="fg"><label>الراتب الأساسي</label><input type="number" placeholder="0"></div>
+        <div class="fg"><label>سعر ساعة الأوفرتايم</label><input type="number" placeholder="0"></div>
+        <div class="fg"><label>تاريخ الانضمام</label><input type="date"></div>
+        <div class="fg"><label>الجنس</label><select><option>Male</option><option>Female</option></select></div>
+        <div class="fg"><label>الحالة الاجتماعية</label><select><option>Single</option><option>Married</option></select></div>
+        <div class="fg"><label>الخدمة العسكرية</label><select><option>Completed</option><option>Exempted</option><option>Deferred</option></select></div>
+        <div class="fg"><label>الهاتف</label><input type="tel" placeholder="+20..."></div>
+        <div class="fg"><label>الحالة</label><select><option>Active</option><option>On Leave</option><option>Suspended</option></select></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-secondary" onclick="closeModal('modal-employee')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveRecord('employee')">💾 حفظ الموظف</button>
+    </div>
+  </div>
+</div>
+
+<!-- Expense Modal -->
+<div class="modal-overlay" id="modal-expense">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">💰 مصروف جديد</div><div class="modal-close" onclick="closeModal('modal-expense')">✕</div></div>
+    <div class="modal-bd">
+      <div class="form-grid">
+        <div class="fg"><label>نوع المصروف</label><select><option>Salaries</option><option>Electricity</option><option>Rent</option><option>Transport</option><option>Marketing</option><option>Meals</option><option>Packaging</option><option>Water</option><option>Internet</option></select></div>
+        <div class="fg"><label>الفئة</label><select><option>Fixed</option><option>Variable</option></select></div>
+        <div class="fg"><label>القسم</label><select><option>Production</option><option>Admin</option><option>Sales</option><option>Logistics</option></select></div>
+        <div class="fg"><label>المبلغ</label><input type="number" placeholder="0.00"></div>
+        <div class="fg"><label>العملة</label><select><option>EGP</option><option>USD</option></select></div>
+        <div class="fg"><label>حالة الدفع</label><select><option>Paid</option><option>Pending</option></select></div>
+        <div class="fg"><label>التاريخ</label><input type="date" value="2026-01-03"></div>
+        <div class="fg"><label>طريقة الدفع</label><select><option>Cash</option><option>Bank Transfer</option><option>Visa</option></select></div>
+        <div class="fg form-full"><label>ملاحظات</label><textarea placeholder="تفاصيل إضافية..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-secondary" onclick="closeModal('modal-expense')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveRecord('expense')">💾 حفظ المصروف</button>
+    </div>
+  </div>
+</div>
+
+<!-- Supplier Modal -->
+<div class="modal-overlay" id="modal-supplier">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">🚚 مورد جديد</div><div class="modal-close" onclick="closeModal('modal-supplier')">✕</div></div>
+    <div class="modal-bd">
+      <div class="form-grid">
+        <div class="fg"><label>اسم المورد</label><input type="text" placeholder="اسم الشركة أو المورد"></div>
+        <div class="fg"><label>فئة المورد</label><select><option>Materials</option><option>Plastic</option><option>Packaging</option><option>Printing</option><option>Labels</option><option>Lab Tools</option><option>General Services</option><option>Wrapping</option></select></div>
+        <div class="fg"><label>الهاتف</label><input type="tel" placeholder="+20..."></div>
+        <div class="fg"><label>البريد الإلكتروني</label><input type="email" placeholder="email@example.com"></div>
+        <div class="fg"><label>مدة السداد (يوم)</label><input type="number" placeholder="30"></div>
+        <div class="fg"><label>حد الائتمان</label><input type="number" placeholder="0"></div>
+        <div class="fg form-full"><label>العنوان</label><input type="text" placeholder="عنوان المورد"></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-secondary" onclick="closeModal('modal-supplier')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveRecord('supplier')">💾 حفظ المورد</button>
+    </div>
+  </div>
+</div>
+
+<!-- Batch Modal -->
+<div class="modal-overlay" id="modal-batch">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">🏭 دفعة إنتاج جديدة</div><div class="modal-close" onclick="closeModal('modal-batch')">✕</div></div>
+    <div class="modal-bd">
+      <div class="form-grid">
+        <div class="fg"><label>المنتج</label><select><option>Laundry Powder 2L</option><option>Dishwash Liquid 1L</option><option>Surface Cleaner 5L</option><option>Disinfectant Pro 3L</option></select></div>
+        <div class="fg"><label>الكمية المخططة</label><input type="number" placeholder="0"></div>
+        <div class="fg"><label>تاريخ البدء</label><input type="date" value="2026-01-03"></div>
+        <div class="fg"><label>تاريخ الانتهاء المتوقع</label><input type="date"></div>
+        <div class="fg"><label>مسؤول الإنتاج</label><select><option>محمد أحمد</option><option>علي حسن</option><option>سارة محمد</option></select></div>
+        <div class="fg"><label>الحالة</label><select><option>In Progress</option><option>On Hold</option></select></div>
+        <div class="fg form-full"><label>ملاحظات</label><textarea placeholder="ملاحظات الدفعة..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-secondary" onclick="closeModal('modal-batch')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveRecord('batch')">💾 إنشاء الدفعة</button>
+    </div>
+  </div>
+</div>
+
+<!-- Generic modals (QC, Waste, Return, Stock Adj, Receivable, Attendance, Purchase) -->
+<div class="modal-overlay" id="modal-qc"><div class="modal"><div class="modal-hd"><div class="modal-title">✅ فحص جودة جديد</div><div class="modal-close" onclick="closeModal('modal-qc')">✕</div></div><div class="modal-bd"><div class="form-grid"><div class="fg"><label>رقم الدفعة</label><select><option>B-2025-102</option><option>B-2025-095</option><option>B-2025-091</option></select></div><div class="fg"><label>الكمية المفحوصة</label><input type="number" placeholder="0"></div><div class="fg"><label>الكمية المقبولة</label><input type="number" placeholder="0"></div><div class="fg"><label>الكمية المرفوضة</label><input type="number" placeholder="0"></div><div class="fg"><label>الإجراء</label><select><option>Accepted</option><option>Rejected</option><option>Re-Work</option><option>Hold</option></select></div><div class="fg"><label>المسؤول</label><select><option>محمد أحمد</option><option>سارة محمد</option><option>علي حسن</option></select></div><div class="fg form-full"><label>ملاحظات</label><textarea placeholder="نتائج الفحص..."></textarea></div></div></div><div class="modal-ft"><button class="btn btn-secondary" onclick="closeModal('modal-qc')">إلغاء</button><button class="btn btn-primary" onclick="saveRecord('qc')">💾 حفظ</button></div></div></div>
+
+<div class="modal-overlay" id="modal-waste"><div class="modal"><div class="modal-hd"><div class="modal-title">♻️ تسجيل هدر</div><div class="modal-close" onclick="closeModal('modal-waste')">✕</div></div><div class="modal-bd"><div class="form-grid"><div class="fg"><label>المنتج</label><select><option>Laundry Powder 2L</option><option>Dishwash Liquid 1L</option><option>Disinfectant Pro 3L</option></select></div><div class="fg"><label>رقم الدفعة</label><input type="text" placeholder="B-2025-..."></div><div class="fg"><label>سبب الهدر</label><select><option>Production Defect</option><option>Expired</option><option>Handling Damage</option><option>Storage Damage</option><option>QC Rejected</option></select></div><div class="fg"><label>الكمية</label><input type="number" placeholder="0"></div><div class="fg"><label>الإجراء</label><select><option>Scrap</option><option>Re-Work</option><option>Discounted Sale</option></select></div><div class="fg"><label>القيمة المفقودة</label><input type="number" placeholder="0"></div></div></div><div class="modal-ft"><button class="btn btn-secondary" onclick="closeModal('modal-waste')">إلغاء</button><button class="btn btn-primary" onclick="saveRecord('waste')">💾 حفظ</button></div></div></div>
+
+<div class="modal-overlay" id="modal-return"><div class="modal"><div class="modal-hd"><div class="modal-title">↩️ مرتجع جديد</div><div class="modal-close" onclick="closeModal('modal-return')">✕</div></div><div class="modal-bd"><div class="form-grid"><div class="fg"><label>نوع المرتجع</label><select><option>Customer Return</option><option>Production Return</option><option>Phone Return</option></select></div><div class="fg"><label>رقم الفاتورة المرجعية</label><input type="text" placeholder="#INV-..."></div><div class="fg"><label>المنتج</label><select><option>Laundry Powder 2L</option><option>Dishwash Liquid 1L</option></select></div><div class="fg"><label>الكمية</label><input type="number" placeholder="0"></div><div class="fg"><label>سبب الإرجاع</label><select><option>Production Defect</option><option>Expired</option><option>Wrong Item</option><option>Handling Damage</option></select></div><div class="fg"><label>المبلغ المسترد</label><input type="number" placeholder="0"></div></div></div><div class="modal-ft"><button class="btn btn-secondary" onclick="closeModal('modal-return')">إلغاء</button><button class="btn btn-primary" onclick="saveRecord('return')">💾 حفظ</button></div></div></div>
+
+<div class="modal-overlay" id="modal-stock-adj"><div class="modal"><div class="modal-hd"><div class="modal-title">🗄️ تعديل مخزون</div><div class="modal-close" onclick="closeModal('modal-stock-adj')">✕</div></div><div class="modal-bd"><div class="form-grid"><div class="fg"><label>المنتج</label><select><option>Laundry Powder 2L</option><option>Dishwash Liquid 1L</option><option>Surface Cleaner 5L</option></select></div><div class="fg"><label>نوع التعديل</label><select><option>جرد فعلي</option><option>إضافة إنتاج</option><option>خصم هدر</option><option>تعديل يدوي</option></select></div><div class="fg"><label>الكمية</label><input type="number" placeholder="0"></div><div class="fg"><label>الموقع</label><select><option>Home</option></select></div><div class="fg form-full"><label>سبب التعديل</label><textarea placeholder="سبب تعديل المخزون..."></textarea></div></div></div><div class="modal-ft"><button class="btn btn-secondary" onclick="closeModal('modal-stock-adj')">إلغاء</button><button class="btn btn-primary" onclick="saveRecord('stock')">💾 حفظ التعديل</button></div></div></div>
+
+<div class="modal-overlay" id="modal-attendance"><div class="modal"><div class="modal-hd"><div class="modal-title">📋 تسجيل حضور</div><div class="modal-close" onclick="closeModal('modal-attendance')">✕</div></div><div class="modal-bd"><div class="form-grid"><div class="fg"><label>الموظف</label><select><option>محمد أحمد</option><option>سارة محمد</option><option>علي حسن</option></select></div><div class="fg"><label>التاريخ</label><input type="date" value="2026-01-03"></div><div class="fg"><label>وقت الدخول</label><input type="time" value="08:00"></div><div class="fg"><label>وقت الخروج</label><input type="time" value="17:00"></div><div class="fg"><label>الحالة</label><select><option>Present</option><option>Absent</option><option>Late</option><option>Leave</option></select></div><div class="fg"><label>ساعات أوفرتايم</label><input type="number" placeholder="0" min="0"></div><div class="fg form-full"><label>ملاحظات</label><input type="text" placeholder="ملاحظة اختيارية"></div></div></div><div class="modal-ft"><button class="btn btn-secondary" onclick="closeModal('modal-attendance')">إلغاء</button><button class="btn btn-primary" onclick="saveRecord('attendance')">💾 حفظ</button></div></div></div>
+
+<div class="modal-overlay" id="modal-purchase"><div class="modal"><div class="modal-hd"><div class="modal-title">🛒 أمر شراء جديد</div><div class="modal-close" onclick="closeModal('modal-purchase')">✕</div></div><div class="modal-bd"><div class="form-grid"><div class="fg"><label>المورد</label><select><option>مصنع النيل الكيماوي</option><option>شركة البلاستيك المتحدة</option><option>مطبعة الإبداع</option></select></div><div class="fg"><label>الخامة</label><input type="text" placeholder="اسم الخامة"></div><div class="fg"><label>الكمية</label><input type="number" placeholder="0"></div><div class="fg"><label>الوحدة</label><select><option>Liter</option><option>Kg</option><option>Piece</option></select></div><div class="fg"><label>سعر الوحدة</label><input type="number" placeholder="0.00"></div><div class="fg"><label>طريقة الدفع</label><select><option>Cash</option><option>Visa</option><option>Bank Transfer</option><option>Deferred</option></select></div><div class="fg"><label>تاريخ الشراء</label><input type="date" value="2026-01-03"></div><div class="fg"><label>تاريخ الاستلام المتوقع</label><input type="date"></div></div></div><div class="modal-ft"><button class="btn btn-secondary" onclick="closeModal('modal-purchase')">إلغاء</button><button class="btn btn-primary" onclick="saveRecord('purchase')">💾 حفظ الأمر</button></div></div></div>
+
+<div class="modal-overlay" id="modal-receivable"><div class="modal"><div class="modal-hd"><div class="modal-title">📥 تسجيل تحصيل</div><div class="modal-close" onclick="closeModal('modal-receivable')">✕</div></div><div class="modal-bd"><div class="form-grid"><div class="fg"><label>العميل</label><select><option>مؤسسة الأمل</option><option>توزيع الخليج</option></select></div><div class="fg"><label>رقم الفاتورة</label><select><option>#INV-2400</option><option>#INV-2375</option></select></div><div class="fg"><label>المبلغ المحصل</label><input type="number" placeholder="0"></div><div class="fg"><label>طريقة الدفع</label><select><option>Cash</option><option>Visa</option><option>Bank Transfer</option><option>Instapay</option></select></div><div class="fg"><label>تاريخ التحصيل</label><input type="date" value="2026-01-03"></div><div class="fg form-full"><label>ملاحظات</label><input type="text" placeholder="ملاحظة"></div></div></div><div class="modal-ft"><button class="btn btn-secondary" onclick="closeModal('modal-receivable')">إلغاء</button><button class="btn btn-primary" onclick="saveRecord('receivable')">💾 تسجيل التحصيل</button></div></div></div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title" id="edit-title">✏️ تعديل السجل</div><div class="modal-close" onclick="closeModal('modal-edit')">✕</div></div>
+    <div class="modal-bd" id="edit-body"></div>
+    <div class="modal-ft">
+      <button class="btn btn-danger" onclick="deleteRecord()">🗑 حذف</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-edit')">إلغاء</button>
+      <button class="btn btn-primary" onclick="updateRecord()">💾 حفظ التعديلات</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ═══════════════ DATA ═══════════════
+const DB = {
+  sales: [
+    {id:'INV-2401',customer:'شركة النور للتجارة',type:'Wholesale',channel:'Branch',payment:'Visa',amount:84500,tax:11830,net:96330,status:'Paid',date:'2026-01-03'},
+    {id:'INV-2400',customer:'مؤسسة الأمل',type:'Online',channel:'Digital',payment:'Instapay',amount:23200,tax:0,net:23200,status:'Pending',date:'2026-01-03'},
+    {id:'INV-2399',customer:'Ahmed Retail',type:'Direct',channel:'Retail Shop',payment:'Cash',amount:9750,tax:0,net:9750,status:'Paid',date:'2026-01-02'},
+    {id:'INV-2398',customer:'الشركة المتحدة',type:'Corporate',channel:'Online',payment:'Bank Transfer',amount:156000,tax:21840,net:177840,status:'Paid',date:'2026-01-01'},
+    {id:'INV-2397',customer:'توزيع الخليج',type:'Distributor',channel:'Distributor',payment:'Deferred',amount:62000,tax:0,net:62000,status:'Pending',date:'2025-12-31'},
+    {id:'INV-2396',customer:'VIP Client - مجموعة الأهرام',type:'VIP',channel:'Direct',payment:'Bank Transfer',amount:210000,tax:29400,net:239400,status:'Paid',date:'2025-12-30'},
+  ],
+  customers: [
+    {id:'C-001',name:'شركة النور للتجارة',type:'Wholesale',phone:'+20 100 111 2222',total:840000,balance:0,status:'Active'},
+    {id:'C-002',name:'مؤسسة الأمل',type:'Individual',phone:'+20 111 222 3333',total:120000,balance:13200,status:'Active'},
+    {id:'C-003',name:'Ahmed Retail',type:'Individual',phone:'+20 122 333 4444',total:45000,balance:0,status:'Active'},
+    {id:'C-004',name:'الشركة المتحدة',type:'Corporate',phone:'+20 100 555 6666',total:620000,balance:0,status:'Active'},
+    {id:'C-005',name:'توزيع الخليج',type:'Distributor',phone:'+20 109 777 8888',total:380000,balance:27000,status:'Active'},
+    {id:'C-006',name:'VIP مجموعة الأهرام',type:'VIP',phone:'+20 102 999 0000',total:1200000,balance:0,status:'Active'},
+  ],
+  products: [
+    {id:'PRD-001',name:'Laundry Powder 2L',cat:'Laundry Care',unit:'Liter',raw:'Powder',size:'2L',cls:'A',price:85,cost:52,status:'Active'},
+    {id:'PRD-002',name:'Dishwash Liquid 1L',cat:'Dishwashing',unit:'Liter',raw:'Liquid',size:'1L',cls:'A',price:40,cost:22,status:'Active'},
+    {id:'PRD-003',name:'Surface Cleaner 5L',cat:'Surface Cleaners',unit:'Piece',raw:'Liquid',size:'5L',cls:'A',price:120,cost:68,status:'Active'},
+    {id:'PRD-004',name:'Disinfectant Pro 3L',cat:'Disinfectants',unit:'Piece',raw:'Liquid',size:'3L',cls:'B',price:95,cost:55,status:'Active'},
+    {id:'PRD-005',name:'Personal Care Wash',cat:'Personal Care',unit:'Piece',raw:'Liquid',size:'500ML',cls:'B',price:65,cost:38,status:'Active'},
+    {id:'PRD-006',name:'Air Fresh Sunset',cat:'Air Fresheners',unit:'Bottle',raw:'Gas',size:'500ML',cls:'C',price:35,cost:18,status:'Inactive'},
+  ],
+  employees: [
+    {id:'EMP-001',name:'محمد أحمد',title:'Production Supervisor',dept:'Production',empType:'Monthly',salary:8500,joined:'2022-03-01',status:'Active'},
+    {id:'EMP-002',name:'سارة محمد',title:'Sales Supervisor',dept:'Sales',empType:'Monthly',salary:7200,joined:'2021-07-15',status:'Active'},
+    {id:'EMP-003',name:'علي حسن',title:'Quality Control Officer',dept:'Production',empType:'Contract',salary:6000,joined:'2023-01-10',status:'Active'},
+    {id:'EMP-004',name:'فاطمة عبد الله',title:'Accountant',dept:'Admin',empType:'Monthly',salary:7500,joined:'2020-09-01',status:'Active'},
+    {id:'EMP-005',name:'عمر خالد',title:'Inventory Controller',dept:'Logistics',empType:'Monthly',salary:5500,joined:'2023-06-01',status:'Active'},
+    {id:'EMP-006',name:'نور أحمد',title:'Data Analyst',dept:'Admin',empType:'Contract',salary:9000,joined:'2024-02-01',status:'Active'},
+    {id:'EMP-007',name:'كريم وليد',title:'Delivery',dept:'Logistics',empType:'Daily',salary:150,joined:'2024-08-01',status:'On Leave'},
+  ],
+  suppliers: [
+    {id:'SUP-001',name:'مصنع النيل الكيماوي',cat:'Materials',phone:'+20 100 111 0001',total:280000,balance:0,days:30,status:'Active'},
+    {id:'SUP-002',name:'شركة البلاستيك المتحدة',cat:'Plastic',phone:'+20 100 222 0002',total:95000,balance:25000,days:45,status:'Active'},
+    {id:'SUP-003',name:'مطبعة الإبداع',cat:'Printing',phone:'+20 100 333 0003',total:48000,balance:0,days:15,status:'Active'},
+    {id:'SUP-004',name:'الشركة العربية للتغليف',cat:'Packaging',phone:'+20 100 444 0004',total:72000,balance:12000,days:30,status:'Active'},
+  ],
+  expenses: [
+    {id:'EXP-001',type:'Salaries',cat:'Fixed',dept:'Production',amount:42000,curr:'EGP',status:'Paid',date:'2026-01-01',note:'رواتب قسم الإنتاج'},
+    {id:'EXP-002',type:'Electricity',cat:'Variable',dept:'Production',amount:18000,curr:'EGP',status:'Paid',date:'2026-01-02',note:'فاتورة يناير'},
+    {id:'EXP-003',type:'Rent',cat:'Fixed',dept:'Admin',amount:15000,curr:'EGP',status:'Paid',date:'2026-01-01',note:'إيجار المصنع'},
+    {id:'EXP-004',type:'Marketing',cat:'Variable',dept:'Sales',amount:8500,curr:'EGP',status:'Paid',date:'2026-01-02',note:'حملة إعلانية'},
+    {id:'EXP-005',type:'Transport',cat:'Variable',dept:'Logistics',amount:6200,curr:'EGP',status:'Pending',date:'2026-01-03',note:'توصيل البضاعة'},
+  ],
+  production: [
+    {id:'B-2025-102',product:'Laundry Powder 2L',planned:1200,actual:1180,waste:20,start:'2025-12-20',end:'2026-01-02',status:'Completed'},
+    {id:'B-2025-095',product:'Disinfectant Pro 3L',planned:600,actual:520,waste:40,start:'2025-12-25',end:'2025-12-30',status:'Completed'},
+    {id:'B-2025-091',product:'Dishwash Liquid 1L',planned:120,actual:0,waste:120,start:'2025-12-26',end:'2025-12-28',status:'Completed'},
+    {id:'B-2026-001',product:'Surface Cleaner 5L',planned:800,actual:650,waste:0,start:'2026-01-01',end:'',status:'In Progress'},
+    {id:'B-2026-002',product:'Personal Care Wash',planned:500,actual:0,waste:0,start:'2026-01-03',end:'',status:'In Progress'},
+  ],
+  inventory: [
+    {product:'Laundry Powder 2L',cat:'Laundry Care',unit:'Liter',qty:1180,reorder:200,safe:500,stockStatus:'Safe',location:'Home',updated:'2026-01-02'},
+    {product:'Dishwash Liquid 1L',cat:'Dishwashing',unit:'Liter',qty:45,reorder:100,safe:200,stockStatus:'Out',location:'Home',updated:'2025-12-28'},
+    {product:'Surface Cleaner 5L',cat:'Surface Cleaners',unit:'Piece',qty:650,reorder:100,safe:300,stockStatus:'Safe',location:'Home',updated:'2026-01-03'},
+    {product:'Disinfectant Pro 3L',cat:'Disinfectants',unit:'Piece',qty:80,reorder:150,safe:400,stockStatus:'Low',location:'Home',updated:'2025-12-30'},
+    {product:'Personal Care Wash',cat:'Personal Care',unit:'Piece',qty:280,reorder:80,safe:200,stockStatus:'Safe',location:'Home',updated:'2026-01-03'},
+    {product:'Air Fresh Sunset',cat:'Air Fresheners',unit:'Bottle',qty:0,reorder:50,safe:150,stockStatus:'Out',location:'Home',updated:'2026-01-03'},
+  ],
+  payroll: [
+    {name:'محمد أحمد',title:'Production Supervisor',salary:8500,otHrs:12,otVal:1200,deductions:0,net:9700,status:'Paid'},
+    {name:'سارة محمد',title:'Sales Supervisor',salary:7200,otHrs:8,otVal:720,deductions:200,net:7720,status:'Paid'},
+    {name:'علي حسن',title:'QC Officer',salary:6000,otHrs:6,otVal:450,deductions:0,net:6450,status:'Paid'},
+    {name:'فاطمة عبد الله',title:'Accountant',salary:7500,otHrs:4,otVal:500,deductions:0,net:8000,status:'Paid'},
+    {name:'عمر خالد',title:'Inventory Controller',salary:5500,otHrs:0,otVal:0,deductions:500,net:5000,status:'Pending'},
+    {name:'نور أحمد',title:'Data Analyst',salary:9000,otHrs:20,otVal:2250,deductions:0,net:11250,status:'Paid'},
+  ],
+  attendance: [
+    {name:'محمد أحمد',title:'Production Supervisor',in:'08:02',out:'17:30',hrs:9.5,ot:1.5,status:'Present',note:''},
+    {name:'سارة محمد',title:'Sales Supervisor',in:'08:15',out:'17:00',hrs:8.75,ot:0,status:'Late',note:'تأخر 15 دقيقة'},
+    {name:'علي حسن',title:'QC Officer',in:'08:00',out:'20:00',hrs:12,ot:4,status:'Present',note:'أوفرتايم'},
+    {name:'فاطمة عبد الله',title:'Accountant',in:'08:00',out:'17:00',hrs:9,ot:0,status:'Present',note:''},
+    {name:'عمر خالد',title:'Inventory Controller',in:'',out:'',hrs:0,ot:0,status:'Leave',note:'إجازة مرضية'},
+    {name:'نور أحمد',title:'Data Analyst',in:'',out:'',hrs:0,ot:0,status:'Absent',note:'غائب بدون إذن'},
+    {name:'كريم وليد',title:'Delivery',in:'',out:'',hrs:0,ot:0,status:'Leave',note:'إجازة سنوية'},
+  ],
+  returns: [
+    {id:'RTN-0089',ref:'INV-2375',source:'توزيع الخليج',type:'Customer Return',reason:'Production Defect',qty:50,amount:5300,status:'Processing',date:'2026-01-02'},
+    {id:'RTN-0088',ref:'B-2025-091',source:'إنتاج داخلي',type:'Production Return',reason:'QC Rejected',qty:120,amount:2400,status:'Completed',date:'2025-12-28'},
+  ],
+  actlog: [
+    {time:'2026-01-03 10:32',user:'المدير العام',action:'إضافة',module:'مبيعات',detail:'فاتورة جديدة',ref:'#INV-2401'},
+    {time:'2026-01-03 09:15',user:'محمد أحمد',action:'تحديث',module:'إنتاج',detail:'تحديث حالة الدفعة',ref:'B-2026-001'},
+    {time:'2026-01-03 08:50',user:'سارة محمد',action:'إضافة',module:'عملاء',detail:'عميل جديد',ref:'C-007'},
+    {time:'2026-01-02 17:22',user:'علي حسن',action:'إضافة',module:'جودة',detail:'نتيجة فحص',ref:'#QC-0145'},
+    {time:'2026-01-02 14:10',user:'فاطمة عبد الله',action:'إضافة',module:'مصروفات',detail:'مصروف كهرباء',ref:'#EXP-002'},
+    {time:'2026-01-01 09:00',user:'المدير العام',action:'تصدير',module:'تقارير',detail:'تقرير الأرباح ديسمبر 2025',ref:'RPT-2025-12'},
+  ]
+};
+
+// ═══════════════ PAGE NAVIGATION ═══════════════
+const pageInfo = {
+  dashboard: {title:'الداشبورد الرئيسي', icon:'◉', addBtn:false},
+  sales:     {title:'المبيعات والفواتير',  icon:'🧾', addBtn:true, modal:'modal-sale'},
+  customers: {title:'العملاء والحسابات',   icon:'👥', addBtn:true, modal:'modal-customer'},
+  returns:   {title:'المرتجعات',           icon:'↩️', addBtn:true, modal:'modal-return'},
+  products:  {title:'المنتجات',            icon:'🏷️', addBtn:true, modal:'modal-product'},
+  inventory: {title:'حالة المخزون',        icon:'🗄️', addBtn:true, modal:'modal-stock-adj'},
+  expiry:    {title:'تنبيهات الصلاحية',    icon:'⏰', addBtn:false},
+  production:{title:'دفعات الإنتاج',      icon:'🏭', addBtn:true, modal:'modal-batch'},
+  quality:   {title:'ضبط الجودة',          icon:'✅', addBtn:true, modal:'modal-qc'},
+  waste:     {title:'الهدر والمخلفات',     icon:'♻️', addBtn:true, modal:'modal-waste'},
+  suppliers: {title:'الموردين',            icon:'🚚', addBtn:true, modal:'modal-supplier'},
+  purchases: {title:'المشتريات',           icon:'🛒', addBtn:true, modal:'modal-purchase'},
+  employees: {title:'الموظفين',            icon:'👔', addBtn:true, modal:'modal-employee'},
+  payroll:   {title:'الرواتب والأوفرتايم', icon:'💵', addBtn:false},
+  attendance:{title:'الحضور والغياب',      icon:'📋', addBtn:true, modal:'modal-attendance'},
+  expenses:  {title:'المصروفات',           icon:'💰', addBtn:true, modal:'modal-expense'},
+  receivables:{title:'الذمم المدينة',      icon:'📥', addBtn:true, modal:'modal-receivable'},
+  profit:    {title:'تقرير الأرباح',       icon:'📊', addBtn:false},
+  settings:  {title:'الإعدادات والقوائم', icon:'⚙️', addBtn:false},
+  actlog:    {title:'سجل الأنشطة',         icon:'📋', addBtn:false},
+};
+
+let currentPage = 'dashboard';
+let currentAddModal = null;
+
+function nav(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  const pg = document.getElementById('page-'+page);
+  if(pg) pg.classList.add('active');
+  const ni = document.querySelector(`[data-page="${page}"]`);
+  if(ni) ni.classList.add('active');
+
+  currentPage = page;
+  const info = pageInfo[page] || {};
+  document.getElementById('topbar-title').textContent = info.title || page;
+  document.getElementById('topbar-icon').textContent = info.icon || '◉';
+
+  const addBtn = document.getElementById('topbar-add-btn');
+  if(info.addBtn) {
+    addBtn.style.display = 'flex';
+    currentAddModal = info.modal;
+  } else {
+    addBtn.style.display = 'none';
+    currentAddModal = null;
+  }
+
+  renderPage(page);
+  document.getElementById('content').scrollTop = 0;
+}
+
+function openAddModal() {
+  if(currentAddModal) openModal(currentAddModal);
+}
+
+// ═══════════════ RENDER ═══════════════
+function renderPage(page) {
+  switch(page) {
+    case 'sales':      renderSales(); break;
+    case 'customers':  renderCustomers(); break;
+    case 'products':   renderProducts(); break;
+    case 'employees':  renderEmployees(); break;
+    case 'suppliers':  renderSuppliers(); break;
+    case 'expenses':   renderExpenses(); break;
+    case 'payroll':    renderPayroll(); break;
+    case 'attendance': renderAttendance(); break;
+    case 'inventory':  renderInventory(); break;
+    case 'production': renderProduction(); break;
+    case 'returns':    renderReturns(); break;
+    case 'actlog':     renderActlog(); break;
+  }
+}
+
+function statusPill(s) {
+  const map = {
+    'Paid':'pill-paid','Pending':'pill-pend','Cancelled':'pill-canc',
+    'Processing':'pill-proc','Active':'pill-act','Inactive':'pill-inact',
+    'Present':'pill-paid','Late':'pill-pend','Absent':'pill-canc','Leave':'pill-proc',
+    'Completed':'pill-paid','In Progress':'pill-proc','On Hold':'pill-pend',
+    'Safe':'pill-safe','Low':'pill-low','Out':'pill-canc','Blocked':'pill-canc','Reorder':'pill-warn',
+    'On Leave':'pill-pend','Suspended':'pill-canc'
+  };
+  return `<span class="pill ${map[s]||'pill-pend'}">${s}</span>`;
+}
+
+function actBtn(rec, page) {
+  return `<div class="acts">
+    <button class="btn btn-secondary btn-sm" onclick="viewRecord('${page}','${rec.id||rec.name}')">👁</button>
+    <button class="btn btn-secondary btn-sm" onclick="editRecord('${page}','${rec.id||rec.name}')">✏️</button>
+    <button class="btn btn-danger btn-sm" onclick="confirmDelete('${page}','${rec.id||rec.name}')">🗑</button>
+  </div>`;
+}
+
+function renderSales() {
+  document.getElementById('sales-body').innerHTML = DB.sales.map(r=>`
+    <tr>
+      <td class="mono accent">#${r.id}</td><td>${r.customer}</td>
+      <td><span class="badge bg">${r.type}</span></td>
+      <td><span class="badge bi">${r.channel}</span></td>
+      <td>${r.payment}</td>
+      <td class="pos">${r.amount.toLocaleString()}</td>
+      <td class="mono">${r.tax.toLocaleString()}</td>
+      <td class="pos">${r.net.toLocaleString()}</td>
+      <td>${statusPill(r.status)}</td>
+      <td class="mono">${r.date}</td>
+      <td>${actBtn(r,'sales')}</td>
+    </tr>`).join('');
+}
+
+function renderCustomers() {
+  document.getElementById('customers-body').innerHTML = DB.customers.map(r=>`
+    <tr>
+      <td class="mono accent">${r.id}</td><td>${r.name}</td>
+      <td><span class="badge bp">${r.type}</span></td>
+      <td class="mono">${r.phone}</td>
+      <td class="pos">${r.total.toLocaleString()}</td>
+      <td class="${r.balance>0?'neg':'pos'}">${r.balance.toLocaleString()}</td>
+      <td>${statusPill(r.status)}</td>
+      <td>${actBtn(r,'customers')}</td>
+    </tr>`).join('');
+}
+
+function renderProducts() {
+  document.getElementById('products-body').innerHTML = DB.products.map(r=>`
+    <tr>
+      <td class="mono accent">${r.id}</td><td>${r.name}</td>
+      <td><span class="badge bg">${r.cat}</span></td>
+      <td>${r.unit}</td><td>${r.raw}</td><td>${r.size}</td>
+      <td><span class="badge ${r.cls==='A'?'bs':r.cls==='B'?'bw':'bo'}">${r.cls}</span></td>
+      <td class="pos">${r.price}</td>
+      <td class="mono">${r.cost}</td>
+      <td>${statusPill(r.status)}</td>
+      <td>${actBtn(r,'products')}</td>
+    </tr>`).join('');
+}
+
+function renderEmployees() {
+  document.getElementById('employees-body').innerHTML = DB.employees.map(r=>`
+    <tr>
+      <td class="mono accent">${r.id}</td><td>${r.name}</td>
+      <td>${r.title}</td><td><span class="badge bp">${r.dept}</span></td>
+      <td>${r.empType}</td>
+      <td class="pos">${r.salary.toLocaleString()}</td>
+      <td class="mono">${r.joined}</td>
+      <td>${statusPill(r.status)}</td>
+      <td>${actBtn(r,'employees')}</td>
+    </tr>`).join('');
+}
+
+function renderSuppliers() {
+  document.getElementById('suppliers-body').innerHTML = DB.suppliers.map(r=>`
+    <tr>
+      <td class="mono accent">${r.id}</td><td>${r.name}</td>
+      <td><span class="badge bo">${r.cat}</span></td>
+      <td class="mono">${r.phone}</td>
+      <td class="pos">${r.total.toLocaleString()}</td>
+      <td class="${r.balance>0?'neg':'pos'}">${r.balance.toLocaleString()}</td>
+      <td class="mono">${r.days} يوم</td>
+      <td>${statusPill(r.status)}</td>
+      <td>${actBtn(r,'suppliers')}</td>
+    </tr>`).join('');
+}
+
+function renderExpenses() {
+  document.getElementById('expenses-body').innerHTML = DB.expenses.map(r=>`
+    <tr>
+      <td class="mono accent">#${r.id}</td><td>${r.type}</td>
+      <td><span class="badge ${r.cat==='Fixed'?'bg':'by'}">${r.cat}</span></td>
+      <td><span class="badge bp">${r.dept}</span></td>
+      <td class="neg">-${r.amount.toLocaleString()}</td>
+      <td class="mono">${r.curr}</td>
+      <td>${statusPill(r.status)}</td>
+      <td class="mono">${r.date}</td>
+      <td style="color:var(--text-dim);font-size:12px">${r.note}</td>
+      <td>${actBtn(r,'expenses')}</td>
+    </tr>`).join('');
+}
+
+function renderPayroll() {
+  document.getElementById('payroll-body').innerHTML = DB.payroll.map(r=>`
+    <tr>
+      <td>${r.name}</td><td>${r.title}</td>
+      <td class="pos">${r.salary.toLocaleString()}</td>
+      <td class="mono">${r.otHrs}</td>
+      <td class="${r.otVal>0?'pos':'mono'}">${r.otVal.toLocaleString()}</td>
+      <td class="${r.deductions>0?'neg':'mono'}">${r.deductions>0?'-'+r.deductions:'-'}</td>
+      <td class="pos">${r.net.toLocaleString()}</td>
+      <td>${statusPill(r.status)}</td>
+      <td><div class="acts"><button class="btn btn-secondary btn-sm">📄 قسيمة</button>${r.status==='Pending'?'<button class="btn btn-primary btn-sm" onclick="showToast(\'تم صرف الراتب ✓\',\'s\')">💵 صرف</button>':''}</div></td>
+    </tr>`).join('');
+}
+
+function renderAttendance() {
+  document.getElementById('attendance-body').innerHTML = DB.attendance.map(r=>`
+    <tr>
+      <td>${r.name}</td><td>${r.title}</td>
+      <td class="mono">${r.in||'—'}</td>
+      <td class="mono">${r.out||'—'}</td>
+      <td class="mono">${r.hrs>0?r.hrs+'h':'—'}</td>
+      <td class="${r.ot>0?'pos mono':'mono'}">${r.ot>0?r.ot+'h':'—'}</td>
+      <td>${statusPill(r.status)}</td>
+      <td style="font-size:12px;color:var(--text-dim)">${r.note||'—'}</td>
+    </tr>`).join('');
+}
+
+function renderInventory() {
+  const statusMap = {'Safe':'pill-safe','Low':'pill-low','Out':'pill-canc','Reorder':'pill-warn','Blocked':'pill-canc'};
+  document.getElementById('inventory-body').innerHTML = DB.inventory.map(r=>`
+    <tr>
+      <td>${r.product}</td>
+      <td><span class="badge bg">${r.cat}</span></td>
+      <td>${r.unit}</td>
+      <td class="${r.qty<r.reorder?'neg':'pos'}">${r.qty.toLocaleString()}</td>
+      <td class="mono">${r.reorder}</td>
+      <td class="mono">${r.safe}</td>
+      <td><span class="pill ${statusMap[r.stockStatus]||'pill-pend'}">${r.stockStatus}</span></td>
+      <td>${r.location}</td>
+      <td class="mono">${r.updated}</td>
+      <td><div class="acts"><button class="btn btn-secondary btn-sm" onclick="openModal('modal-stock-adj')">⚙️ تعديل</button></div></td>
+    </tr>`).join('');
+}
+
+function renderProduction() {
+  document.getElementById('production-body').innerHTML = DB.production.map(r=>`
+    <tr>
+      <td class="mono accent">${r.id}</td><td>${r.product}</td>
+      <td class="mono">${r.planned.toLocaleString()}</td>
+      <td class="${r.actual>0?'pos':'mono'}">${r.actual.toLocaleString()}</td>
+      <td class="${r.waste>0?'neg':'mono'}">${r.waste.toLocaleString()}</td>
+      <td class="mono">${r.start}</td>
+      <td class="mono">${r.end||'—'}</td>
+      <td>${statusPill(r.status)}</td>
+      <td>${actBtn(r,'production')}</td>
+    </tr>`).join('');
+}
+
+function renderReturns() {
+  document.getElementById('returns-body').innerHTML = DB.returns.map(r=>`
+    <tr>
+      <td class="mono accent">#${r.id}</td>
+      <td class="mono">${r.ref}</td>
+      <td>${r.source}</td>
+      <td><span class="badge bo">${r.type}</span></td>
+      <td>${r.reason}</td>
+      <td class="mono">${r.qty}</td>
+      <td class="neg">-${r.amount.toLocaleString()}</td>
+      <td>${statusPill(r.status)}</td>
+      <td class="mono">${r.date}</td>
+      <td>${actBtn(r,'returns')}</td>
+    </tr>`).join('');
+}
+
+function renderActlog() {
+  const actColors = {'إضافة':'bs','تحديث':'bg','حذف':'bd','تصدير':'bp'};
+  document.getElementById('actlog-body').innerHTML = DB.actlog.map(r=>`
+    <tr>
+      <td class="mono" style="font-size:11px">${r.time}</td>
+      <td>${r.user}</td>
+      <td><span class="badge ${actColors[r.action]||'bg'}">${r.action}</span></td>
+      <td>${r.module}</td>
+      <td style="color:var(--text-mid);font-size:12px">${r.detail}</td>
+      <td class="mono accent">${r.ref}</td>
+    </tr>`).join('');
+}
+
+// ═══════════════ MODALS ═══════════════
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if(e.target === this) this.classList.remove('open');
+  });
+});
+
+function saveRecord(type) {
+  const messages = {
+    sale:'تم حفظ الفاتورة بنجاح ✓',
+    customer:'تم إضافة العميل بنجاح ✓',
+    product:'تم إضافة المنتج بنجاح ✓',
+    employee:'تم إضافة الموظف بنجاح ✓',
+    supplier:'تم إضافة المورد بنجاح ✓',
+    expense:'تم حفظ المصروف بنجاح ✓',
+    batch:'تم إنشاء الدفعة بنجاح ✓',
+    qc:'تم حفظ نتيجة الفحص ✓',
+    waste:'تم تسجيل الهدر ✓',
+    return:'تم تسجيل المرتجع ✓',
+    stock:'تم تعديل المخزون ✓',
+    attendance:'تم تسجيل الحضور ✓',
+    purchase:'تم إنشاء أمر الشراء ✓',
+    receivable:'تم تسجيل التحصيل ✓',
+  };
+  document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'));
+  showToast(messages[type]||'تم الحفظ ✓','s');
+  logActivity('إضافة', type);
+}
+
+// ═══════════════ RECORD ACTIONS ═══════════════
+let editContext = null;
+
+function viewRecord(page, id) {
+  showToast(`عرض: ${id}`,'s');
+}
+
+function editRecord(page, id) {
+  editContext = {page, id};
+  document.getElementById('edit-title').textContent = `✏️ تعديل — ${id}`;
+  document.getElementById('edit-body').innerHTML = `
+    <div style="padding:12px;background:var(--surface2);border-radius:8px;margin-bottom:16px;font-size:13px;color:var(--text-mid)">
+      📝 تعديل السجل: <strong style="color:var(--accent)">${id}</strong>
+    </div>
+    <div class="form-grid">
+      <div class="fg"><label>الحالة</label><select>
+        <option>Active</option><option>Inactive</option><option>Pending</option><option>Paid</option>
+      </select></div>
+      <div class="fg"><label>ملاحظة التعديل</label><input type="text" placeholder="سبب التعديل..."></div>
+    </div>`;
+  openModal('modal-edit');
+}
+
+function updateRecord() {
+  closeModal('modal-edit');
+  showToast(`تم تحديث السجل بنجاح ✓`,'s');
+  if(editContext) logActivity('تحديث', editContext.page);
+  editContext = null;
+}
+
+function deleteRecord() {
+  closeModal('modal-edit');
+  showToast(`تم حذف السجل`,'d');
+  if(editContext) logActivity('حذف', editContext.page);
+  editContext = null;
+}
+
+function confirmDelete(page, id) {
+  editContext = {page, id};
+  if(confirm(`هل أنت متأكد من حذف: ${id}؟`)) {
+    deleteRecord();
+  }
+}
+
+// ═══════════════ FILTER TABLE ═══════════════
+function filterTable(tableId, q) {
+  const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+  q = q.toLowerCase();
+  rows.forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+// ═══════════════ SETTINGS TABS ═══════════════
+function switchSettingsTab(el, tabId) {
+  document.querySelectorAll('#page-settings .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['stab-dv','stab-company','stab-users'].forEach(id=>{
+    const el2 = document.getElementById(id);
+    if(el2) el2.style.display = id===tabId?'':'none';
+  });
+}
+
+function addSettingItem(listId) {
+  const item = prompt('أدخل القيمة الجديدة:');
+  if(!item) return;
+  const list = document.getElementById(listId);
+  const div = document.createElement('div');
+  div.className = 'ms';
+  div.innerHTML = `<span>${item}</span><div class="acts">
+    <button class="btn btn-secondary btn-sm btn-icon">✏️</button>
+    <button class="btn btn-danger btn-sm btn-icon" onclick="this.closest('.ms').remove();showToast('تم الحذف','d')">🗑</button>
+  </div>`;
+  list.appendChild(div);
+  showToast(`تم إضافة: ${item} ✓`,'s');
+}
+
+// ═══════════════ TOAST ═══════════════
+function showToast(msg, type='s') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  const icons = {s:'✅', d:'❌', w:'⚠️'};
+  toast.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  container.appendChild(toast);
+  setTimeout(()=>{
+    toast.style.animation = 'toastOut .3s ease forwards';
+    setTimeout(()=>toast.remove(), 300);
+  }, 3000);
+}
+
+// ═══════════════ ACTIVITY LOG ═══════════════
+function logActivity(action, module) {
+  const now = new Date();
+  const time = now.toLocaleString('ar-EG',{hour12:false}).replace(',','');
+  DB.actlog.unshift({time, user:'المدير العام', action, module, detail:'عملية '+action, ref:'AUTO-'+Date.now().toString().slice(-6)});
+}
+
+// ═══════════════ DATE ═══════════════
+function updateDate() {
+  const now = new Date();
+  const d = now.toLocaleDateString('ar-EG',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+  document.getElementById('date-chip').textContent = d;
+}
+updateDate();
+setInterval(updateDate, 60000);
+
+// ═══════════════ NAV CLICK ═══════════════
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const page = item.dataset.page;
+    if(page) nav(page);
+  });
+});
+
+// ═══════════════ TABS ════
